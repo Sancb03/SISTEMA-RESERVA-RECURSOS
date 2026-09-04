@@ -52,7 +52,10 @@ public class FuncionarioDao {
     public Funcionario buscarPorId(int id, Usuario usuarioActual) {
         validarAdmin(usuarioActual);
         Usuario u = usuarioDao.buscarPorId(id);
-        return (u instanceof Funcionario f) ? f : null;
+        if (u instanceof Funcionario){
+            return (Funcionario) u;
+        }
+        return null;
     }
 
     public List<Funcionario> buscarPorNombre(String nombre, Usuario usuarioActual) {
