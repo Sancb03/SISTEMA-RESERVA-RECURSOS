@@ -1,25 +1,30 @@
 package reserva.presentation.Login;
 
+import reserva.logic.Usuario;
+
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
+
 class LoginModel {
-    private String identificacion;
-    private String clave;
 
-    public LoginModel() {
+    public static final String USUARIO_AUTENTICADO = "usuarioAutenticado";
+
+    private final PropertyChangeSupport support = new PropertyChangeSupport(this);
+    private Usuario usuarioAutenticado;
+
+    LoginModel() {
     }
 
-    public String getIdentificacion() {
-        return identificacion;
+    Usuario getUsuarioAutenticado() {
+        return usuarioAutenticado;
     }
 
-    public void setIdentificacion(String identificacion) {
-        this.identificacion = identificacion;
+    void setUsuarioAutenticado(Usuario usuarioAutenticado) {
+        this.usuarioAutenticado = usuarioAutenticado;
+        support.firePropertyChange(USUARIO_AUTENTICADO, null, usuarioAutenticado);
     }
 
-    public String getClave() {
-        return clave;
-    }
-
-    public void setClave(String clave) {
-        this.clave = clave;
+    void addPropertyChangeListener(PropertyChangeListener listener) {
+        support.addPropertyChangeListener(listener);
     }
 }

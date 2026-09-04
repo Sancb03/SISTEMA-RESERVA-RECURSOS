@@ -1,82 +1,81 @@
 package reserva.presentation.Login;
 
-import javax.swing.*;
-import java.awt.*;
+import reserva.presentation.Login.CambiarClave.CambiarClaveView;
 
-public class LoginView {
-    private final JPanel panel1;
-    private final JTextField id_tField;
-    private final JButton ingresarButton;
-    private final JButton cancelarButton;
-    private final JButton cambiarClaveButton;
-    private final JPasswordField clave_tField;
-    private final JLabel idLabel;
-    private final JLabel claveLabel;
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+
+public class LoginView extends JFrame implements PropertyChangeListener {
+
+    // Componentes creados por el .form (IntelliJ GUI Designer) - no se instancian a mano,
+    // el diseñador los llena en tiempo de compilación a partir de LoginView.form
+    private JPanel panel1;
+    private JLabel idLabel;
+    private JLabel claveLabel;
+    private JTextField id_tField;
+    private JPasswordField clave_tField;
+    private JButton Visibilidadbutton;
+    private JButton ingresarButton;
+    private JButton cancelarButton;
+    private JButton cambiarClaveButton;
+
+    private LoginModel model;
+    private LoginController controller;
+    private CambiarClaveView cambiarClaveView;
+    private boolean claveVisible = false;
 
     public LoginView() {
-        panel1 = new JPanel(new GridBagLayout());
-        panel1.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        setTitle("Sistema de Reserva de Recursos - Ingreso");
+        setContentPane(panel1);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        pack();
+        setLocationRelativeTo(null);
+        setResizable(false);
+        getRootPane().setDefaultButton(ingresarButton);
 
-        idLabel = new JLabel("Identificación:");
-        claveLabel = new JLabel("Clave:");
-        id_tField = new JTextField(15);
-        clave_tField = new JPasswordField(15);
-        ingresarButton = new JButton("Ingresar");
-        cancelarButton = new JButton("Cancelar");
-        cambiarClaveButton = new JButton("Cambiar clave");
+        model = new LoginModel();
+        controller = new LoginController(this, model);
+        model.addPropertyChangeListener(this);
 
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(8, 8, 8, 8);
-        gbc.fill = GridBagConstraints.HORIZONTAL;
+        cambiarClaveView = new CambiarClaveView();
 
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        panel1.add(idLabel, gbc);
+        ingresarButton.addActionListener(this::onIngresar);
+        cancelarButton.addActionListener(e -> dispose());
+        cambiarClaveButton.addActionListener(e -> cambiarClaveView.mostrarPara(id_tField.getText()));
+        Visibilidadbutton.addActionListener(e -> alternarVisibilidadClave());
+    }
 
-        gbc.gridx = 1;
-        gbc.gridy = 0;
-        panel1.add(id_tField, gbc);
+    private void onIngresar(ActionEvent e) {
+        try {
+            controller.login(id_tField.getText(), new String(clave_tField.getPassword()));
+            JOptionPane.showMessageDialog(panel1,
+                    "Bienvenido, " + model.getUsuarioAutenticado().getNombre());
+            // TODO (equipo): cuando TabsView esté implementada, aquí se debe abrir
+            // la ventana principal (ya con el usuario autenticado en Sesion) y
+            // cerrar este login, por ejemplo:
+            //   new TabsView().setVisible(true);
+            //   dispose();
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(panel1, ex.getMessage(),
+                    "Error de autenticación", JOptionPane.ERROR_MESSAGE);
+        }
+    }
 
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        panel1.add(claveLabel, gbc);
-
-        gbc.gridx = 1;
-        gbc.gridy = 1;
-        panel1.add(clave_tField, gbc);
-
-        JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
-        buttonsPanel.add(ingresarButton);
-        buttonsPanel.add(cancelarButton);
-        buttonsPanel.add(cambiarClaveButton);
-
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        gbc.gridwidth = 2;
-        panel1.add(buttonsPanel, gbc);
+    private void alternarVisibilidadClave() {
+        claveVisible = !claveVisible;
+        clave_tField.setEchoChar(claveVisible ? (char) 0 : '\u2022');
+        Visibilidadbutton.setText(claveVisible ? "🙈" : "👁️");
     }
 
     public JPanel getPanel() {
         return panel1;
     }
 
-    public JTextField getId_tField() {
-        return id_tField;
-    }
-
-    public JPasswordField getClave_tField() {
-        return clave_tField;
-    }
-
-    public JButton getIngresarButton() {
-        return ingresarButton;
-    }
-
-    public JButton getCancelarButton() {
-        return cancelarButton;
-    }
-
-    public JButton getCambiarClaveButton() {
-        return cambiarClaveButton;
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        // Reservado por si en el futuro la vista necesita reaccionar
+        // a cambios del modelo (por ejemplo, refrescar algo en pantalla).
     }
 }

@@ -1,34 +1,43 @@
 package reserva.presentation.Login.CambiarClave;
 
 class CambiarClaveModel {
+    private String identificacion;
     private String claveActual;
     private String nuevaClave;
     private String confirmacionClave;
 
-    public CambiarClaveModel() {
+    CambiarClaveModel() {
     }
 
-    public String getClaveActual() {
+    String getIdentificacion() {
+        return identificacion;
+    }
+
+    void setIdentificacion(String identificacion) {
+        this.identificacion = identificacion;
+    }
+
+    String getClaveActual() {
         return claveActual;
     }
 
-    public void setClaveActual(String claveActual) {
+    void setClaveActual(String claveActual) {
         this.claveActual = claveActual;
     }
 
-    public String getNuevaClave() {
+    String getNuevaClave() {
         return nuevaClave;
     }
 
-    public void setNuevaClave(String nuevaClave) {
+    void setNuevaClave(String nuevaClave) {
         this.nuevaClave = nuevaClave;
     }
 
-    public String getConfirmacionClave() {
+    String getConfirmacionClave() {
         return confirmacionClave;
     }
 
-    public void setConfirmacionClave(String confirmacionClave) {
+    void setConfirmacionClave(String confirmacionClave) {
         this.confirmacionClave = confirmacionClave;
     }
 }
