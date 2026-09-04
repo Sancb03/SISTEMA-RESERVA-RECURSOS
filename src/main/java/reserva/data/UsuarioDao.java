@@ -23,9 +23,6 @@ import java.util.List;
 public class UsuarioDao {
     private static final String ARCHIVO = "data/usuarios.xml";
 
-    public UsuarioDao() {
-        asegurarArchivoConSemilla();
-    }
 
 
     public boolean guardar(Usuario usuario) {
@@ -168,19 +165,5 @@ public class UsuarioDao {
     }
 
 
-    private void asegurarArchivoConSemilla() {
-        File archivo = new File(ARCHIVO);
-        if (archivo.exists()) return;
-
-        Administrador admin = new Administrador();
-        admin.setId(1);
-        admin.setIdentificacion("admin");
-        admin.setNombre("Administrador");
-        admin.setClave("admin");
-
-        List<Usuario> semilla = new ArrayList<>();
-        semilla.add(admin);
-        guardarTodos(semilla);
-    }
 
 }
