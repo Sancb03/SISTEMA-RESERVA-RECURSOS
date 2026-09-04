@@ -3,7 +3,6 @@ package reserva.presentation.Funcionarios;
 class FuncionariosModel {
     private int id;
     private String nombre;
-    private String cargo;
     private String telefono;
 
     public FuncionariosModel() {
@@ -25,14 +24,6 @@ class FuncionariosModel {
         this.nombre = nombre;
     }
 
-    public String getCargo() {
-        return cargo;
-    }
-
-    public void setCargo(String cargo) {
-        this.cargo = cargo;
-    }
-
     public String getTelefono() {
         return telefono;
     }
@@ -41,3 +32,4 @@ class FuncionariosModel {
         this.telefono = telefono;
     }
 }
+

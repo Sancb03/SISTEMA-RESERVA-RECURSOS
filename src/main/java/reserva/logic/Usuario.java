@@ -1,13 +1,13 @@
 package reserva.logic;
 
-public class Usuario {
+
+public abstract class Usuario {
     private int id;
     private String identificacion;
     private String nombre;
     private String clave;
-    private String rol;
 
-    public Usuario() {
+    protected Usuario() {
     }
 
     public int getId() {
@@ -42,11 +42,6 @@ public class Usuario {
         this.clave = clave;
     }
 
-    public String getRol() {
-        return rol;
-    }
 
-    public void setRol(String rol) {
-        this.rol = rol;
-    }
+    public abstract String getRol();
 }
