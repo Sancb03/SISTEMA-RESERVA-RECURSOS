@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 class TablaModel extends AbstractTableModel {
-    private static final String[] COLUMNAS = {"ID", "Recurso", "Funcionario", "Inicio", "Fin", "Estado"};
+    static final String[] COLUMNAS = {"Id", "Actividad", "Fecha", "Horario", "Recursos", "Estado"};
     private final List<Object[]> filas = new ArrayList<>();
 
     public TablaModel() {

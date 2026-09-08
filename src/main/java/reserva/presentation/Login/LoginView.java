@@ -66,7 +66,6 @@ public class LoginView extends JFrame implements PropertyChangeListener {
     private void alternarVisibilidadClave() {
         claveVisible = !claveVisible;
         clave_tField.setEchoChar(claveVisible ? (char) 0 : '\u2022');
-        Visibilidadbutton.setText(claveVisible ? "🙈" : "👁️");
     }
 
     public JPanel getPanel() {

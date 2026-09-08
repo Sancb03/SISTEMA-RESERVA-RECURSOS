@@ -1,61 +1,32 @@
 package reserva.presentation.Reservas;
 
+import reserva.logic.Categoria;
+import reserva.logic.Reserva;
+
+import java.util.ArrayList;
+import java.util.List;
+
 class ReservasModel {
-    private int id;
-    private String recurso;
-    private String funcionario;
-    private String fechaInicio;
-    private String fechaFin;
-    private String estado;
+
+    private List<Categoria> categorias = new ArrayList<>();
+    private List<Reserva> misReservas = new ArrayList<>();
 
     public ReservasModel() {
     }
 
-    public int getId() {
-        return id;
+    public List<Categoria> getCategorias() {
+        return categorias;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setCategorias(List<Categoria> categorias) {
+        this.categorias = (categorias != null) ? categorias : new ArrayList<>();
     }
 
-    public String getRecurso() {
-        return recurso;
+    public List<Reserva> getMisReservas() {
+        return misReservas;
     }
 
-    public void setRecurso(String recurso) {
-        this.recurso = recurso;
-    }
-
-    public String getFuncionario() {
-        return funcionario;
-    }
-
-    public void setFuncionario(String funcionario) {
-        this.funcionario = funcionario;
-    }
-
-    public String getFechaInicio() {
-        return fechaInicio;
-    }
-
-    public void setFechaInicio(String fechaInicio) {
-        this.fechaInicio = fechaInicio;
-    }
-
-    public String getFechaFin() {
-        return fechaFin;
-    }
-
-    public void setFechaFin(String fechaFin) {
-        this.fechaFin = fechaFin;
-    }
-
-    public String getEstado() {
-        return estado;
-    }
-
-    public void setEstado(String estado) {
-        this.estado = estado;
+    public void setMisReservas(List<Reserva> misReservas) {
+        this.misReservas = (misReservas != null) ? misReservas : new ArrayList<>();
     }
 }

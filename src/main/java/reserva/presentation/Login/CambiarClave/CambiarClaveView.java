@@ -73,7 +73,6 @@ public class CambiarClaveView extends JFrame {
     private void alternarVisibilidad(JPasswordField campo, JButton boton) {
         boolean estabaOculta = campo.getEchoChar() != 0;
         campo.setEchoChar(estabaOculta ? (char) 0 : '\u2022');
-        boton.setText(estabaOculta ? "🙈" : "...");
     }
 
     private void limpiar() {
