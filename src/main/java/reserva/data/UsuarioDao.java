@@ -42,7 +42,11 @@ public class UsuarioDao {
         if (usuario == null) {
             return false;
         }
-        usuario.setId(siguienteId++);
+
+        if (buscarPorId(usuario.getId()) != null) {
+            return false;
+        }
+
         return USUARIOS.add(usuario);
     }
 

@@ -9,6 +9,16 @@ import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.Cell;
+import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.layout.element.Table;
+
+import java.awt.Desktop;
+import java.io.File;
+
 class FuncionariosController {
     private final FuncionariosView view;
     private final FuncionariosModel model;
@@ -26,13 +36,6 @@ class FuncionariosController {
 
         inicializar();
     }
-    public FuncionariosController(FuncionariosView view, FuncionariosModel model, TablaModel tableModel) {
-        this.view = view;
-        this.model = model;
-        this.tableModel = tableModel;
-        this.dao = new FuncionarioDao();
-        this.usuarioActual = null;
-    }
 
     public FuncionariosView getView() {
         return view;
@@ -48,16 +51,6 @@ class FuncionariosController {
 
     private void inicializar() {
 
-        if (!(usuarioActual instanceof Administrador)) {
-            JOptionPane.showMessageDialog(
-                    view.getPanel1(),
-                    "Solo un administrador puede acceder a esta pantalla."
-            );
-
-            habilitar(false);
-            return;
-        }
-
         view.getListadotable().setModel(tableModel);
 
         cargarListado();
@@ -66,7 +59,62 @@ class FuncionariosController {
         view.getGuardarButton().addActionListener(e -> guardar());
         view.getBorrarButton().addActionListener(e -> borrar());
         view.getLimpiarButton().addActionListener(e -> limpiar());
-        view.getImprimirButton().addActionListener(e -> cargarListado());
+        view.getImprimirButton().addActionListener(e -> generarPDF());
+    }
+
+    private void generarPDF() {
+
+        try {
+
+            List<Funcionario> funcionarios = dao.listar(usuarioActual);
+
+            String nombreArchivo = "Funcionarios.pdf";
+
+            PdfWriter writer = new PdfWriter(nombreArchivo);
+            PdfDocument pdf = new PdfDocument(writer);
+            Document document = new Document(pdf);
+
+            document.add(new Paragraph("LISTA DE FUNCIONARIOS"));
+
+            Table tabla = new Table(3);
+
+            tabla.addCell(new Cell().add(new Paragraph("ID")));
+            tabla.addCell(new Cell().add(new Paragraph("Nombre")));
+            tabla.addCell(new Cell().add(new Paragraph("Teléfono")));
+
+            for (Funcionario f : funcionarios) {
+
+                tabla.addCell(new Cell().add(
+                        new Paragraph(String.valueOf(f.getId()))
+                ));
+
+                tabla.addCell(new Cell().add(
+                        new Paragraph(f.getNombre())
+                ));
+
+                tabla.addCell(new Cell().add(
+                        new Paragraph(f.getTelefono())
+                ));
+            }
+
+            document.add(tabla);
+
+            document.close();
+
+            JOptionPane.showMessageDialog(
+                    view.getPanel1(),
+                    "PDF generado correctamente."
+            );
+
+            Desktop.getDesktop().open(new File(nombreArchivo));
+
+        } catch (Exception ex) {
+
+            JOptionPane.showMessageDialog(
+                    view.getPanel1(),
+                    "No se pudo generar el PDF: " + ex.getMessage()
+            );
+        }
     }
 
     private void habilitar(boolean habilitado) {
