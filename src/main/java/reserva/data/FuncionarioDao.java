@@ -24,7 +24,7 @@ public class FuncionarioDao {
         if (funcionario.getIdentificacion() == null || funcionario.getIdentificacion().isBlank()) {
             funcionario.setIdentificacion(String.valueOf(funcionario.getId()));
         }
-        funcionario.setClave(String.valueOf(funcionario.getId())); // clave inicial = id
+        funcionario.setClave(String.valueOf(funcionario.getId()));
 
         return usuarioDao.guardar(funcionario);
     }
@@ -35,7 +35,7 @@ public class FuncionarioDao {
 
         Usuario existente = usuarioDao.buscarPorId(funcionario.getId());
         if (!(existente instanceof Funcionario)) {
-            return false; // no existe, o el id pertenece a otro tipo de usuario
+            return false;
         }
         return usuarioDao.actualizar(funcionario);
     }
@@ -52,7 +52,10 @@ public class FuncionarioDao {
     public Funcionario buscarPorId(int id, Usuario usuarioActual) {
         validarAdmin(usuarioActual);
         Usuario u = usuarioDao.buscarPorId(id);
-        return (u instanceof Funcionario f) ? f : null;
+        if (u instanceof Funcionario){
+            return (Funcionario) u;
+        }
+        return null;
     }
 
     public List<Funcionario> buscarPorNombre(String nombre, Usuario usuarioActual) {
