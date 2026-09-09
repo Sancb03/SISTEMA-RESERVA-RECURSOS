@@ -16,15 +16,16 @@ class FuncionariosController {
     private final FuncionarioDao dao;
     private final Usuario usuarioActual;
 
-    public FuncionariosController(FuncionariosView view, Usuario usuarioActual) {
+    public FuncionariosController(FuncionariosView view,FuncionariosModel model, TablaModel tableModel, Usuario usuarioActual)
+    {
         this.view = view;
-        this.model = new FuncionariosModel();
-        this.tableModel = new TablaModel();
+        this.model = model;
+        this.tableModel = tableModel;
         this.dao = new FuncionarioDao();
         this.usuarioActual = usuarioActual;
+
         inicializar();
     }
-
     public FuncionariosController(FuncionariosView view, FuncionariosModel model, TablaModel tableModel) {
         this.view = view;
         this.model = model;
@@ -73,8 +74,8 @@ class FuncionariosController {
 
     private void buscar() {
         try {
-            String idTexto = view.getIdTField().getText().trim();
-            String nombreTexto = view.getNombreTField().getText().trim();
+            String idTexto = view.getIdTField().getText();
+            String nombreTexto = view.getNombreTField().getText();
 
             if (!idTexto.isEmpty()) {
                 Funcionario f = dao.buscarPorId(Integer.parseInt(idTexto), usuarioActual);
@@ -108,14 +109,21 @@ class FuncionariosController {
             }
 
             int id = Integer.parseInt(idTexto);
+
+            model.setId(id);
+            model.setNombre(nombre);
+            model.setTelefono(telefono);
+
+
             Funcionario existente = dao.buscarPorId(id, usuarioActual);
 
             Funcionario f = new Funcionario();
-            f.setId(id);
-            f.setNombre(nombre);
-            f.setTelefono(telefono);
+            f.setId(model.getId());
+            f.setNombre(model.getNombre());
+            f.setTelefono(model.getTelefono());
 
             boolean ok;
+
             if (existente == null) {
                 ok = dao.guardar(f, usuarioActual);
                 if (ok) {
