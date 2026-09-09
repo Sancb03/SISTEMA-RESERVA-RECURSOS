@@ -1,5 +1,7 @@
 package reserva.presentation.Estadisticas;
 
+import com.github.lgooddatepicker.components.DatePicker;
+
 import javax.swing.*;
 
 public class EstadisticasView {
@@ -7,11 +9,7 @@ public class EstadisticasView {
     private JTable EstadisticasActtable;
     private JPanel RecursosPanel;
     private JPanel FechasRecPanel;
-    private JTextField DesdeRec_tField;
-    private JButton DesdeRecbutton;
-    private JTextField HastaRec_tField;
-    private JButton HastaRecbutton;
-    private JButton cargarRecbutton;
+    private JButton cargarRecButton;
     private JPanel EstadisticasRecPanel;
     private JPanel GraficoRecPanel;
     private JScrollPane EstadisticasRecScroll;
@@ -19,10 +17,33 @@ public class EstadisticasView {
     private JPanel EstadisticasActPanel;
     private JPanel GraficoActPanel;
     private JPanel FechasActPanel;
-    private JTextField DesdeAct_tField;
-    private JTextField HastaAct_tField;
-    private JButton DesdeActbutton;
-    private JButton HastaActbutton;
-    private JButton CargarActbutton;
+    private JButton CargarActButton;
     private JScrollPane EstadisticasActScroll;
+    private DatePicker DPRecursosInicio;
+    private DatePicker DPRecursosFin;
+    private DatePicker DPActividadesInicio;
+    private DatePicker DPActividadesFin;
+    private JPanel panelPrincipal;
+
+    public JPanel getPanelPrincipal(){ return panelPrincipal; }
+
+    public DatePicker getDPActividadesInicio(){ return DPActividadesInicio; }
+
+    public DatePicker getDPActividadesFin(){ return DPActividadesFin; }
+
+    public DatePicker getDPRecursosInicio(){ return DPRecursosInicio; }
+
+    public DatePicker getDPRecursosFin(){ return DPRecursosFin; }
+
+    public JButton getCargarRecButton(){ return cargarRecButton; }
+
+    public JButton getCargarActButton(){ return CargarActButton; }
+
+    public JTable getEstadisticasRectable(){ return EstadisticasRectable; }
+
+    public JTable getEstadisticasActtable(){ return EstadisticasActtable; }
+
+    public JPanel getGraficoRecPanel(){ return GraficoRecPanel; }
+
+    public JPanel getGraficoActPanel(){ return GraficoActPanel; }
 }
