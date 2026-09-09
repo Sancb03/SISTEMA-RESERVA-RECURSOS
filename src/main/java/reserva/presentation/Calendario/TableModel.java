@@ -5,22 +5,33 @@ import java.util.ArrayList;
 import java.util.List;
 
 class TablaModel extends AbstractTableModel {
-    private static final String[] COLUMNAS = {"ID", "Recurso", "Fecha", "Actividad"};
-    private final List<Object[]> filas = new ArrayList<>();
+    private List<String> columnas;
+    private List<Object[]> filas;
 
     public TablaModel() {
+         columnas = new ArrayList<>();
+         filas = new ArrayList<>();
     }
 
     public List<Object[]> getFilas() {
         return filas;
     }
 
-    public void setFilas(List<Object[]> filas) {
-        this.filas.clear();
-        if (filas != null) {
-            this.filas.addAll(filas);
+    public void setFilas(List<Object[]> filasNuevas) {
+        filas.clear();
+        if (filasNuevas != null) {
+            filas.addAll(filasNuevas);
         }
         fireTableDataChanged();
+    }
+
+    public void setColumnas(List<String> nuevasColumnas) {
+        columnas.clear();
+
+        if(nuevasColumnas != null){
+            columnas.addAll(nuevasColumnas);
+        }
+        fireTableStructureChanged();
     }
 
     @Override
@@ -30,12 +41,12 @@ class TablaModel extends AbstractTableModel {
 
     @Override
     public int getColumnCount() {
-        return COLUMNAS.length;
+        return columnas.size();
     }
 
     @Override
     public String getColumnName(int column) {
-        return COLUMNAS[column];
+        return columnas.get(column);
     }
 
     @Override
