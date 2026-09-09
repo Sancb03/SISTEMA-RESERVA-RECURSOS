@@ -43,5 +43,7 @@ public class EstadisticasView {
 
     public JTable getEstadisticasActtable(){ return EstadisticasActtable; }
 
+    public JPanel getGraficoRecPanel(){ return GraficoRecPanel; }
 
+    public JPanel getGraficoActPanel(){ return GraficoActPanel; }
 }
