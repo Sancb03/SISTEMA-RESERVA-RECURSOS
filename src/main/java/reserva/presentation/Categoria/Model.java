@@ -1,27 +1,18 @@
 package reserva.presentation.Categoria;
 
 class CategoriaModel {
-    private int id;
-    private String nombre;
+    private String id;
     private String descripcion;
 
     public CategoriaModel() {
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
     }
 
     public String getDescripcion() {

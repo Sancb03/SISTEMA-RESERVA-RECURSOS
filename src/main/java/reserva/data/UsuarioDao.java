@@ -7,17 +7,7 @@ import reserva.logic.Usuario;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * TODO (equipo): esta clase usa por ahora una lista en memoria como
- * almacenamiento temporal, solo para poder probar el login mientras se
- * implementa la persistencia real en XML del proyecto.
- * <p>
- * Las firmas de los métodos públicos (guardar, actualizar, eliminar,
- * buscarPorId, buscarPorIdentificacion, listar) no deberían cambiar
- * cuando se reemplace esto por XML: solo hay que cambiar lo que hay
- * dentro de cada método. Así el resto de módulos que ya usan este DAO
- * no se ven afectados.
- */
+
 public class UsuarioDao {
 
     private static final List<Usuario> USUARIOS = new ArrayList<>();
