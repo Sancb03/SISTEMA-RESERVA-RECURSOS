@@ -1,5 +1,7 @@
 package reserva.presentation.Categoria;
 
+import reserva.logic.Usuario;
+
 import javax.swing.*;
 
 public class CategoriasView {
@@ -18,6 +20,21 @@ public class CategoriasView {
     private JLabel idLabel;
     private JLabel descripcionLabel;
     private JScrollPane ListadoScroll;
+
+    private CategoriaModel model;
+    private CategoriaController controller;
+    private TablaModel tableModel;
+
+    public CategoriasView(Usuario usuarioActual) {
+
+        model = new CategoriaModel();
+        tableModel = new TablaModel();
+
+        controller = new CategoriaController(this, model, tableModel,usuarioActual);
+
+        Categoriatable.setModel(tableModel);
+    }
+
 
     public JPanel getCategoriaPanel() {
         return CategoriaPanel;
@@ -57,5 +74,17 @@ public class CategoriasView {
 
     public JTable getCategoriatable() {
         return Categoriatable;
+    }
+
+    public CategoriaModel getModel() {
+        return model;
+    }
+
+    public CategoriaController getController() {
+        return controller;
+    }
+
+    public TablaModel getTableModel() {
+        return tableModel;
     }
 }

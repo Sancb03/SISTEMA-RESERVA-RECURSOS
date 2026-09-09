@@ -16,21 +16,14 @@ class CategoriaController {
     private final CategoriaDao dao;
     private final Usuario usuarioActual;
 
-    public CategoriaController(CategoriasView view, Usuario usuarioActual) {
+    public CategoriaController(CategoriasView view,  CategoriaModel model,
+                               TablaModel tableModel, Usuario usuarioActual) {
         this.view = view;
         this.model = new CategoriaModel();
         this.tableModel = new TablaModel();
         this.dao = new CategoriaDao();
         this.usuarioActual = usuarioActual;
         inicializar();
-    }
-
-    public CategoriaController(CategoriasView view, CategoriaModel model, TablaModel tableModel) {
-        this.view = view;
-        this.model = model;
-        this.tableModel = tableModel;
-        this.dao = new CategoriaDao();
-        this.usuarioActual = null;
     }
 
     public CategoriasView getView() {
@@ -54,8 +47,6 @@ class CategoriaController {
         }
 
         view.getCategoriatable().setModel(tableModel);
-        view.getIdTField().setEditable(false); // el id es autogenerado
-
         cargarListado();
 
         view.getBuscarButton().addActionListener(e -> buscar());
