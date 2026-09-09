@@ -47,14 +47,19 @@ class FuncionariosController {
     }
 
     private void inicializar() {
+
         if (!(usuarioActual instanceof Administrador)) {
-            JOptionPane.showMessageDialog(view.getPanel1(),
-                    "Solo un administrador puede acceder a esta pantalla.");
+            JOptionPane.showMessageDialog(
+                    view.getPanel1(),
+                    "Solo un administrador puede acceder a esta pantalla."
+            );
+
             habilitar(false);
             return;
         }
 
         view.getListadotable().setModel(tableModel);
+
         cargarListado();
 
         view.getBuscarButton().addActionListener(e -> buscar());

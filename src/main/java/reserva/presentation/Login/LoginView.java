@@ -1,6 +1,9 @@
 package reserva.presentation.Login;
 
+
 import reserva.presentation.Login.CambiarClave.CambiarClaveView;
+
+import reserva.presentation.Funcionarios.FuncionariosView;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -49,17 +52,37 @@ public class LoginView extends JFrame implements PropertyChangeListener {
 
     private void onIngresar(ActionEvent e) {
         try {
-            controller.login(id_tField.getText(), new String(clave_tField.getPassword()));
-            JOptionPane.showMessageDialog(panel1,
-                    "Bienvenido, " + model.getUsuarioAutenticado().getNombre());
-            // TODO (equipo): cuando TabsView esté implementada, aquí se debe abrir
-            // la ventana principal (ya con el usuario autenticado en Sesion) y
-            // cerrar este login, por ejemplo:
-            //   new TabsView().setVisible(true);
-            //   dispose();
+            controller.login(
+                    id_tField.getText(),
+                    new String(clave_tField.getPassword())
+            );
+
+            JOptionPane.showMessageDialog(
+                    panel1,
+                    "Bienvenido, " +
+                            model.getUsuarioAutenticado().getNombre()
+            );
+
+            FuncionariosView funcionariosView =
+                    new FuncionariosView(model.getUsuarioAutenticado());
+
+            JFrame ventana = new JFrame("Funcionarios");
+            ventana.setContentPane(funcionariosView.getPanel1());
+            ventana.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            ventana.pack();
+            ventana.setLocationRelativeTo(null);
+            ventana.setVisible(true);
+
+            dispose();
+
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(panel1, ex.getMessage(),
-                    "Error de autenticación", JOptionPane.ERROR_MESSAGE);
+
+            JOptionPane.showMessageDialog(
+                    panel1,
+                    ex.getMessage(),
+                    "Error de autenticación",
+                    JOptionPane.ERROR_MESSAGE
+            );
         }
     }
 
