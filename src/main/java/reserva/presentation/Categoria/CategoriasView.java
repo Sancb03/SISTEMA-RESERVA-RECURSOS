@@ -18,4 +18,44 @@ public class CategoriasView {
     private JLabel idLabel;
     private JLabel descripcionLabel;
     private JScrollPane ListadoScroll;
+
+    public JPanel getCategoriaPanel() {
+        return CategoriaPanel;
+    }
+
+    public JTextField getDescripcionBusquedaTField() {
+        return Descripcion_tField;
+    }
+
+    public JButton getBuscarButton() {
+        return buscarButton;
+    }
+
+    public JButton getImprimirButton() {
+        return imprimirButton;
+    }
+
+    public JButton getGuardarButton() {
+        return guardarButton;
+    }
+
+    public JButton getBorrarButton() {
+        return borrarButton;
+    }
+
+    public JButton getLimpiarButton() {
+        return limpiarButton;
+    }
+
+    public JTextField getIdTField() {
+        return id_tField;
+    }
+
+    public JTextField getDescripcionTField() {
+        return descripcion_tField;
+    }
+
+    public JTable getCategoriatable() {
+        return Categoriatable;
+    }
 }
