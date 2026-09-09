@@ -31,8 +31,6 @@ public class CategoriaDao {
         }
     }
 
-    // ---------- API publica ----------
-
     public boolean guardar(Categoria categoria, Usuario usuarioActual) {
         validarAdmin(usuarioActual);
         if (categoria == null || categoria.getDescripcion() == null || categoria.getDescripcion().isBlank()) {
@@ -40,6 +38,7 @@ public class CategoriaDao {
         }
 
         List<Categoria> categorias = listarInterno();
+        String nuevoId = generarSiguienteId(categorias);
         categoria.setId(generarSiguienteId(categorias));
         categorias.add(categoria);
         guardarTodos(categorias);
@@ -48,11 +47,15 @@ public class CategoriaDao {
 
     public boolean actualizar(Categoria categoria, Usuario usuarioActual) {
         validarAdmin(usuarioActual);
-        if (categoria == null || categoria.getId() == null) return false;
+        if (categoria == null || categoria.getId() == null){
+            return false;
+        }
 
         List<Categoria> categorias = listarInterno();
         Categoria existente = buscarPorId(categorias, categoria.getId());
-        if (existente == null) return false;
+        if (existente == null) {
+            return false;
+        }
 
         existente.setDescripcion(categoria.getDescripcion());
         guardarTodos(categorias);
@@ -77,7 +80,9 @@ public class CategoriaDao {
     public List<Categoria> buscarPorDescripcion(String texto, Usuario usuarioActual) {
         validarAdmin(usuarioActual);
         List<Categoria> resultado = new ArrayList<>();
-        if (texto == null || texto.isBlank()) return resultado;
+        if (texto == null || texto.isBlank()) {
+            return resultado;
+        }
         String buscado = texto.toLowerCase();
         for (Categoria c : listarInterno()) {
             if (c.getDescripcion() != null && c.getDescripcion().toLowerCase().contains(buscado)) {
@@ -92,11 +97,11 @@ public class CategoriaDao {
         return listarInterno();
     }
 
-    // ---------- Helpers internos ----------
-
     private Categoria buscarPorId(List<Categoria> categorias, String id) {
         for (Categoria c : categorias) {
-            if (c.getId().equals(id)) return c;
+            if (c.getId().equals(id)) {
+                return c;
+            }
         }
         return null;
     }
@@ -110,7 +115,6 @@ public class CategoriaDao {
                     int numero = Integer.parseInt(id.substring(PREFIJO.length()));
                     maxNumero = Math.max(maxNumero, numero);
                 } catch (NumberFormatException ignored) {
-                    // id con formato inesperado, se ignora para el calculo del siguiente numero
                 }
             }
         }
