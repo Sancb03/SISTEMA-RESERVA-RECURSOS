@@ -1,6 +1,6 @@
 package reserva.presentation.Login;
 
-import reserva.data.UsuarioDao;
+import reserva.data.Data;
 import reserva.logic.Sesion;
 import reserva.logic.Usuario;
 
@@ -8,7 +8,7 @@ class LoginController {
 
     private final LoginView view;
     private final LoginModel model;
-    private final UsuarioDao usuarioDao;
+    private final Data data;
 
     LoginController(LoginView view) {
         this(view, new LoginModel());
@@ -17,7 +17,7 @@ class LoginController {
     LoginController(LoginView view, LoginModel model) {
         this.view = view;
         this.model = model;
-        this.usuarioDao = new UsuarioDao();
+        this.data = Data.instance();
     }
 
     LoginView getView() {
@@ -36,7 +36,7 @@ class LoginController {
             throw new Exception("Debe indicar su clave.");
         }
 
-        Usuario usuario = usuarioDao.buscarPorIdentificacion(identificacion.trim());
+        Usuario usuario = data.buscarUsuarioPorIdentificacion(identificacion.trim());
         if (usuario == null) {
             throw new Exception("No existe un usuario con esa identificación.");
         }

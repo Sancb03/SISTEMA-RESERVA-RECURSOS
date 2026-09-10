@@ -2,8 +2,9 @@ package reserva.presentation.Login;
 
 
 import reserva.presentation.Login.CambiarClave.CambiarClaveView;
-
-import reserva.presentation.Funcionarios.FuncionariosView;
+import reserva.presentation.Tabs.TabsView;
+import reserva.presentation.Iconos;
+import reserva.logic.Usuario;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -15,6 +16,7 @@ public class LoginView extends JFrame implements PropertyChangeListener {
     // Componentes creados por el .form (IntelliJ GUI Designer) - no se instancian a mano,
     // el diseñador los llena en tiempo de compilación a partir de LoginView.form
     private JPanel panel1;
+    private JLabel logoLabel;
     private JLabel idLabel;
     private JLabel claveLabel;
     private JTextField id_tField;
@@ -38,6 +40,17 @@ public class LoginView extends JFrame implements PropertyChangeListener {
         setResizable(false);
         getRootPane().setDefaultButton(ingresarButton);
 
+        if (Iconos.get("icon") != null) {
+            setIconImage(Iconos.get("icon").getImage());
+        }
+        if (logoLabel != null) {
+            logoLabel.setIcon(Iconos.get("loginDialog"));
+            logoLabel.setIconTextGap(8);
+        }
+        ingresarButton.setIcon(Iconos.get("ok"));
+        cancelarButton.setIcon(Iconos.get("cancel"));
+        cambiarClaveButton.setIcon(Iconos.get("clave"));
+
         model = new LoginModel();
         controller = new LoginController(this, model);
         model.addPropertyChangeListener(this);
@@ -57,22 +70,10 @@ public class LoginView extends JFrame implements PropertyChangeListener {
                     new String(clave_tField.getPassword())
             );
 
-            JOptionPane.showMessageDialog(
-                    panel1,
-                    "Bienvenido, " +
-                            model.getUsuarioAutenticado().getNombre()
-            );
+            Usuario usuario = model.getUsuarioAutenticado();
+            JOptionPane.showMessageDialog(panel1, "Bienvenido, " + usuario.getNombre());
 
-            FuncionariosView funcionariosView =
-                    new FuncionariosView(model.getUsuarioAutenticado());
-
-            JFrame ventana = new JFrame("Funcionarios");
-            ventana.setContentPane(funcionariosView.getPanel1());
-            ventana.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            ventana.pack();
-            ventana.setLocationRelativeTo(null);
-            ventana.setVisible(true);
-
+            new TabsView(usuario).setVisible(true);
             dispose();
 
         } catch (Exception ex) {
@@ -89,7 +90,6 @@ public class LoginView extends JFrame implements PropertyChangeListener {
     private void alternarVisibilidadClave() {
         claveVisible = !claveVisible;
         clave_tField.setEchoChar(claveVisible ? (char) 0 : '\u2022');
-        Visibilidadbutton.setText(claveVisible ? "🙈" : "👁️");
     }
 
     public JPanel getPanel() {

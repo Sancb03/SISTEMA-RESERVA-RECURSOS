@@ -1,13 +1,13 @@
 package reserva.presentation.Login.CambiarClave;
 
-import reserva.data.UsuarioDao;
+import reserva.data.Data;
 import reserva.logic.Usuario;
 
 class CambiarClaveController {
 
     private final CambiarClaveView view;
     private final CambiarClaveModel model;
-    private final UsuarioDao usuarioDao;
+    private final Data data;
 
     CambiarClaveController(CambiarClaveView view) {
         this(view, new CambiarClaveModel());
@@ -16,7 +16,7 @@ class CambiarClaveController {
     CambiarClaveController(CambiarClaveView view, CambiarClaveModel model) {
         this.view = view;
         this.model = model;
-        this.usuarioDao = new UsuarioDao();
+        this.data = Data.instance();
     }
 
     CambiarClaveView getView() {
@@ -42,7 +42,7 @@ class CambiarClaveController {
             throw new Exception("La confirmación no coincide con la nueva clave.");
         }
 
-        Usuario usuario = usuarioDao.buscarPorIdentificacion(identificacion.trim());
+        Usuario usuario = data.buscarUsuarioPorIdentificacion(identificacion.trim());
         if (usuario == null) {
             throw new Exception("No se encontró un usuario con esa identificación.");
         }
@@ -51,6 +51,8 @@ class CambiarClaveController {
         }
 
         usuario.setClave(claveNueva);
-        usuarioDao.actualizar(usuario);
+        if (!data.actualizarUsuario(usuario)) {
+            throw new Exception("No se pudo actualizar la clave del usuario.");
+        }
     }
 }

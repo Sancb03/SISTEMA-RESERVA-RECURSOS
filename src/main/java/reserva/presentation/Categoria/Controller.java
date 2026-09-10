@@ -1,8 +1,9 @@
 package reserva.presentation.Categoria;
 
 import reserva.GeneradorPDF;
+import reserva.presentation.Iconos;
 
-import reserva.data.CategoriaDao;
+import reserva.data.Data;
 import reserva.logic.Administrador;
 import reserva.logic.Categoria;
 import reserva.logic.Usuario;
@@ -17,7 +18,7 @@ class CategoriaController {
     private final CategoriasView view;
     private final CategoriaModel model;
     private final TablaModel tableModel;
-    private final CategoriaDao dao;
+    private final Data data;
     private final Usuario usuarioActual;
 
     public CategoriaController(CategoriasView view,  CategoriaModel model,
@@ -25,7 +26,7 @@ class CategoriaController {
         this.view = view;
         this.model = new CategoriaModel();
         this.tableModel = new TablaModel();
-        this.dao = new CategoriaDao();
+        this.data = Data.instance();
         this.usuarioActual = usuarioActual;
         inicializar();
     }
@@ -52,6 +53,12 @@ class CategoriaController {
 
         view.getCategoriatable().setModel(tableModel);
         cargarListado();
+
+        view.getBuscarButton().setIcon(Iconos.get("search"));
+        view.getGuardarButton().setIcon(Iconos.get("save"));
+        view.getBorrarButton().setIcon(Iconos.get("delete"));
+        view.getLimpiarButton().setIcon(Iconos.get("clear"));
+        view.getImprimirButton().setIcon(Iconos.get("pdf"));
 
         view.getBuscarButton().addActionListener(e -> buscar());
         view.getGuardarButton().addActionListener(e -> guardar());
@@ -93,7 +100,7 @@ class CategoriaController {
             if (texto.isEmpty()) {
                 cargarListado();
             } else {
-                mostrarEnTabla(dao.buscarPorDescripcion(texto, usuarioActual));
+                mostrarEnTabla(data.buscarCategoriasPorDescripcion(texto, usuarioActual));
             }
         } catch (RuntimeException ex) {
             JOptionPane.showMessageDialog(view.getCategoriaPanel(), ex.getMessage());
@@ -114,7 +121,7 @@ class CategoriaController {
             if (id.isEmpty()) {
                 Categoria c = new Categoria();
                 c.setDescripcion(descripcion);
-                ok = dao.guardar(c, usuarioActual);
+                ok = data.guardarCategoria(c, usuarioActual);
                 if (ok) {
                     JOptionPane.showMessageDialog(view.getCategoriaPanel(),
                             "Categoría creada con id " + c.getId() + ".");
@@ -125,7 +132,7 @@ class CategoriaController {
                 Categoria c = new Categoria();
                 c.setId(id);
                 c.setDescripcion(descripcion);
-                ok = dao.actualizar(c, usuarioActual);
+                ok = data.actualizarCategoria(c, usuarioActual);
                 if (ok) {
                     JOptionPane.showMessageDialog(view.getCategoriaPanel(), "Categoría modificada.");
                 } else {
@@ -152,7 +159,7 @@ class CategoriaController {
             int confirmar = JOptionPane.showConfirmDialog(view.getCategoriaPanel(),
                     "¿Eliminar la categoría " + id + "?");
             if (confirmar == JOptionPane.YES_OPTION) {
-                if (dao.eliminar(id, usuarioActual)) {
+                if (data.eliminarCategoria(id, usuarioActual)) {
                     limpiar();
                     cargarListado();
                 } else {
@@ -172,7 +179,7 @@ class CategoriaController {
 
     private void cargarListado() {
         try {
-            mostrarEnTabla(dao.listar(usuarioActual));
+            mostrarEnTabla(data.listarCategorias(usuarioActual));
         } catch (RuntimeException ex) {
             JOptionPane.showMessageDialog(view.getCategoriaPanel(), ex.getMessage());
         }

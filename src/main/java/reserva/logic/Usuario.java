@@ -1,9 +1,16 @@
 package reserva.logic;
 
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlID;
 
+@XmlAccessorType(XmlAccessType.FIELD)
 public abstract class Usuario {
     private int id;
+
+    @XmlID
     private String identificacion;
+
     private String nombre;
     private String clave;
 
@@ -45,3 +52,4 @@ public abstract class Usuario {
 
     public abstract String getRol();
 }
+
