@@ -6,8 +6,17 @@ import reserva.logic.Categoria;
 import reserva.logic.Usuario;
 
 import javax.swing.*;
+import java.awt.Desktop;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.Cell;
+import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.layout.element.Table;
 
 class CategoriaController {
     private final CategoriasView view;
@@ -53,13 +62,48 @@ class CategoriaController {
         view.getGuardarButton().addActionListener(e -> guardar());
         view.getBorrarButton().addActionListener(e -> borrar());
         view.getLimpiarButton().addActionListener(e -> limpiar());
-        view.getImprimirButton().addActionListener(e -> cargarListado());
+        view.getImprimirButton().addActionListener(e -> generarPDF());
 
         view.getCategoriatable().getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 cargarFilaSeleccionada();
             }
         });
+    }
+
+    private void generarPDF() {
+        try {
+            List<Categoria> categorias = dao.listar(usuarioActual);
+
+            String nombreArchivo = "Categorias.pdf";
+
+            PdfWriter writer = new PdfWriter(nombreArchivo);
+            PdfDocument pdf = new PdfDocument(writer);
+            Document document = new Document(pdf);
+
+            document.add(new Paragraph("LISTA DE CATEGORÍAS"));
+            Table tabla = new Table(2);
+            tabla.addCell(new Cell().add(new Paragraph("ID")));
+
+            tabla.addCell(new Cell().add(new Paragraph("Descripción")));
+
+            for (Categoria c : categorias) {
+                tabla.addCell(new Cell().add(new Paragraph(c.getId())));
+
+                tabla.addCell(new Cell().add(new Paragraph(c.getDescripcion())));
+            }
+
+            document.add(tabla);
+            document.close();
+
+            JOptionPane.showMessageDialog(view.getCategoriaPanel(), "PDF generado correctamente.");
+
+            Desktop.getDesktop().open(new File(nombreArchivo));
+
+        }
+        catch (Exception ex) {
+            JOptionPane.showMessageDialog(view.getCategoriaPanel(), "No se pudo generar el PDF: " + ex.getMessage());
+        }
     }
 
     private void cargarFilaSeleccionada() {
