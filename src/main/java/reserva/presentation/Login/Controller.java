@@ -28,10 +28,6 @@ class LoginController {
         return model;
     }
 
-    /**
-     * Intentar iniciar sesión. Si algo falla, lanza Exception con un
-     * mensaje entendible para mostrarlo directamente en un JOptionPane.
-     */
     void login(String identificacion, String clave) throws Exception {
         if (identificacion == null || identificacion.isBlank()) {
             throw new Exception("Debe indicar su identificación.");

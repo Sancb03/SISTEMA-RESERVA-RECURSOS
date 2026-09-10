@@ -27,4 +27,76 @@ public class ReservasView {
     private JScrollPane MiReservaScrolll;
     private JPanel CategoriaPanel;
     private JScrollPane CategoriaScroll;
+
+    public JTextField getFraseTField() {
+        return Frase_tField;
+    }
+
+    public JTextField getActividadTField() {
+        return Actividad_tField;
+    }
+
+    public JTextField getFechaTField() {
+        return Fecha_tField;
+    }
+
+    public JButton getFechaButton() {
+        return Fechabutton;
+    }
+
+    public JComboBox getHoraInicioCBox() {
+        return HoraInicio_cBox;
+    }
+
+    public JComboBox getHoraFinCBox() {
+        return HoraFin_cBox;
+    }
+
+    public JButton getExtraerButton() {
+        return extraerButton;
+    }
+
+    public JButton getReservarButton() {
+        return reservarButton;
+    }
+
+    public JButton getCancelarReservaSeleccionadaButton() {
+        return cancelarReservaSeleccionadaButton;
+    }
+
+    public JButton getLimpiaButton() {
+        return limpiaButton;
+    }
+
+    public JList getCategoriaList() {
+        return Categorialist;
+    }
+
+    public JButton getImprimirButton() {
+        return imprimirButton;
+    }
+
+    public JTable getMiReservaTable() {
+        return MiReservatable;
+    }
+
+    public JPanel getReservasPanel() {
+        return ReservasPanel;
+    }
+
+    public JPanel getMiReservasPanel() {
+        return MiReservasPanel;
+    }
+
+    public JPanel getCategoriaPanel() {
+        return CategoriaPanel;
+    }
+
+    public JScrollPane getMiReservaScroll() {
+        return MiReservaScrolll;
+    }
+
+    public JScrollPane getCategoriaScroll() {
+        return CategoriaScroll;
+    }
 }

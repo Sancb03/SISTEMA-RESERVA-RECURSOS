@@ -1,5 +1,7 @@
 package reserva.presentation.Recursos;
 
+import reserva.GeneradorPDF;
+
 class RecursosController {
     private final RecursosView view;
     private final RecursosModel model;
@@ -9,12 +11,16 @@ class RecursosController {
         this.view = view;
         this.model = new RecursosModel();
         this.tableModel = new TablaModel();
+
+        configurarEventos();
     }
 
     public RecursosController(RecursosView view, RecursosModel model, TablaModel tableModel) {
         this.view = view;
         this.model = model;
         this.tableModel = tableModel;
+
+        configurarEventos();
     }
 
     public RecursosView getView() {
@@ -27,5 +33,11 @@ class RecursosController {
 
     public TablaModel getTableModel() {
         return tableModel;
+    }
+
+    private void configurarEventos(){
+
+        view.getImprimirButton().addActionListener(e -> {GeneradorPDF.generarDesdeTabla
+                (view.getListadoTable(), "Lista de Recursos", "Recursos.pdf");});
     }
 }
