@@ -3,8 +3,11 @@ package reserva.presentation.Calendario;
 import com.github.lgooddatepicker.components.DatePicker;
 
 import javax.swing.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
-public class CalendarioRecursosView {
+public class CalendarioRecursosView implements PropertyChangeListener {
+
     private JTextField Fecha_tField;
     private JButton Fechabutton;
     private JComboBox Descripcion_cBox;
@@ -18,13 +21,65 @@ public class CalendarioRecursosView {
     private DatePicker datePicker;
     private JPanel panelPrincipal;
 
-    public JPanel getPanel() { return panelPrincipal; }
+    private CalendarioController controller;
+    private CalendarioModel model;
+
+    public CalendarioRecursosView() {
+
+        cargarButton.addActionListener(e -> {
+
+            controller.cargarCalendarioRecursos(
+                    datePicker.getDate(),
+                    Descripcion_cBox.getSelectedItem()
+            );
+        });
+
+        imprimirButton.addActionListener(e -> {
+            controller.generarPDFRecursos();
+        });
+    }
+
+    public void setController(CalendarioController controller) {
+        this.controller = controller;
+    }
+
+    public void setModel(CalendarioModel model) {
+        this.model = model;
+        model.addPropertyChangeListener(this);
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+
+        switch (evt.getPropertyName()) {
+
+            case CalendarioModel.RECURSOS:
+
+                CalendarioRectable.setModel(
+                        new TableModel(
+                                model.getColumnasRecursos(),
+                                model.getFilasRecursos()
+                        )
+                );
+
+                break;
+        }
+
+        panelPrincipal.revalidate();
+        panelPrincipal.repaint();
+    }
+
+    public JPanel getPanel() {
+        return panelPrincipal;
+    }
 
     public JTextField getFecha_tField() {
         return Fecha_tField;
     }
 
-    public JButton getFechabutton() { return Fechabutton; }
+    public JButton getFechabutton() {
+        return Fechabutton;
+    }
 
     public JComboBox getDescripcion_cBox() {
         return Descripcion_cBox;
@@ -34,10 +89,15 @@ public class CalendarioRecursosView {
         return cargarButton;
     }
 
-    public JTable getCalendarioRectable() { return CalendarioRectable; }
+    public JTable getCalendarioRectable() {
+        return CalendarioRectable;
+    }
 
-    public JButton getImprimirButton() { return imprimirButton; }
+    public JButton getImprimirButton() {
+        return imprimirButton;
+    }
 
-    public DatePicker getDatePicker() { return datePicker; }
-
+    public DatePicker getDatePicker() {
+        return datePicker;
+    }
 }

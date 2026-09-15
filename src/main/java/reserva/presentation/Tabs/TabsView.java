@@ -31,11 +31,6 @@ public class TabsView extends JFrame {
     private JPanel CalendarioRecTab;
     private JPanel CalendarioActTab;
 
-    /**
-     * @param usuarioActual el usuario que acaba de iniciar sesión (viene de LoginView).
-     *                       Según sea Administrador o Funcionario se muestran unas
-     *                       pestañas u otras, tal como lo pide el enunciado.
-     */
     public TabsView(Usuario usuarioActual) {
         setTitle("Sistema de Reserva de Recursos"
                 + (usuarioActual != null ? " - " + usuarioActual.getNombre() + " (" + usuarioActual.getRol() + ")" : ""));
@@ -84,7 +79,7 @@ public class TabsView extends JFrame {
         // Calendarización (funcionalidades 6 y 7) y Estadísticas (8): para ambos roles
         CalendarioRecursosView calRecursosView = new CalendarioRecursosView();
         CalendarioActividadesView calActividadesView = new CalendarioActividadesView();
-        new CalendarioController(calRecursosView, calActividadesView, usuarioActual);
+        new CalendarioController(calRecursosView, calActividadesView);
 
         CalendarioRecTab.setLayout(new BorderLayout());
         CalendarioRecTab.add(calRecursosView.getPanel(), BorderLayout.CENTER);
