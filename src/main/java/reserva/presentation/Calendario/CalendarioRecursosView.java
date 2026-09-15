@@ -1,10 +1,12 @@
 package reserva.presentation.Calendario;
 
 import com.github.lgooddatepicker.components.DatePicker;
+import reserva.logic.Categoria;
 
 import javax.swing.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.List;
 
 public class CalendarioRecursosView implements PropertyChangeListener {
 
@@ -99,5 +101,20 @@ public class CalendarioRecursosView implements PropertyChangeListener {
 
     public DatePicker getDatePicker() {
         return datePicker;
+    }
+
+    public void cargarCategoriasEnCombo(List<Categoria> categorias) {
+
+        Object seleccionActual = Descripcion_cBox.getSelectedItem();
+
+        Descripcion_cBox.removeAllItems();
+
+        for (Categoria c : categorias) {
+            Descripcion_cBox.addItem(c);
+        }
+
+        if (seleccionActual != null) {
+            Descripcion_cBox.setSelectedItem(seleccionActual);
+        }
     }
 }

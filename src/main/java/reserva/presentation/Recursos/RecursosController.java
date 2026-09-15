@@ -81,7 +81,7 @@ public class RecursosController {
         );
     }
 
-    private void cargarCategorias() {
+    public void cargarCategorias() {
 
         try {
 

@@ -1,6 +1,9 @@
 package reserva.presentation.Calendario;
 
 import reserva.GeneradorPDF;
+import reserva.data.Data;
+import reserva.logic.Categoria;
+import reserva.logic.Usuario;
 
 import javax.swing.*;
 import java.time.DayOfWeek;
@@ -14,15 +17,18 @@ public class CalendarioController {
     private final CalendarioRecursosView recursosView;
     private final CalendarioActividadesView actividadesView;
     private final CalendarioModel model;
+    private final Usuario usuarioActual;
 
     public CalendarioController(
             CalendarioRecursosView recursosView,
             CalendarioActividadesView actividadesView,
-            CalendarioModel model) {
+            CalendarioModel model,
+            Usuario usuarioActual) {
 
         this.recursosView = recursosView;
         this.actividadesView = actividadesView;
         this.model = model;
+        this.usuarioActual = usuarioActual;
 
         recursosView.setController(this);
         recursosView.setModel(model);
@@ -31,17 +37,35 @@ public class CalendarioController {
         actividadesView.setModel(model);
 
         cargarHorasRecursos();
+        cargarCategoriasRecursos();
     }
 
     public CalendarioController(
             CalendarioRecursosView recursosView,
-            CalendarioActividadesView actividadesView) {
+            CalendarioActividadesView actividadesView, Usuario usuarioActual) {
 
         this(
                 recursosView,
                 actividadesView,
-                new CalendarioModel()
+                new CalendarioModel(),
+                usuarioActual
         );
+    }
+    public void cargarCategoriasRecursos() {
+
+        try {
+            List<Categoria> categorias =
+                    Data.instance().listarCategorias(usuarioActual);
+
+            recursosView.cargarCategoriasEnCombo(categorias);
+
+        } catch (RuntimeException ex) {
+
+            JOptionPane.showMessageDialog(
+                    null,
+                    ex.getMessage()
+            );
+        }
     }
 
     private void cargarHorasRecursos() {
