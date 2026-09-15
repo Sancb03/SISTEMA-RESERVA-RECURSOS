@@ -168,9 +168,6 @@ public class EstadisticasController {
 
         ChartPanel chartPanel = new ChartPanel(chart);
 
-        chartPanel.setMinimumDrawWidth(0);
-        chartPanel.setMaximumDrawHeight(0);
-
         JPanel panel = view.getGraficoRecPanel();
 
         panel.removeAll();
@@ -222,9 +219,6 @@ public class EstadisticasController {
                 );
 
         ChartPanel chartPanel = new ChartPanel(chart);
-
-        chartPanel.setMinimumDrawWidth(0);
-        chartPanel.setMaximumDrawHeight(0);
 
         JPanel panel =
                 view.getGraficoActPanel();
