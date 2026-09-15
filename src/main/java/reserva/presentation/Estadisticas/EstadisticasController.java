@@ -65,11 +65,6 @@ public class EstadisticasController {
 
         List<Object[]> filas = new ArrayList<>();
 
-        // DATOS TEMPORALES SOLO PARA PROBAR
-        filas.add(new Object[]{"Salas", 4});
-        filas.add(new Object[]{"Computadoras", 7});
-        filas.add(new Object[]{"Proyectores", 3});
-
         model.setRecursos(filas);
     }
 
