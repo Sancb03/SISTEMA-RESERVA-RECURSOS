@@ -1,37 +1,16 @@
 package reserva.presentation.Calendario;
 
 import javax.swing.table.AbstractTableModel;
-import java.util.ArrayList;
 import java.util.List;
 
-class TablaModel extends AbstractTableModel {
-    private List<String> columnas;
-    private List<Object[]> filas;
+public class TableModel extends AbstractTableModel {
 
-    public TablaModel() {
-         columnas = new ArrayList<>();
-         filas = new ArrayList<>();
-    }
+    private final List<String> columnas;
+    private final List<Object[]> filas;
 
-    public List<Object[]> getFilas() {
-        return filas;
-    }
-
-    public void setFilas(List<Object[]> filasNuevas) {
-        filas.clear();
-        if (filasNuevas != null) {
-            filas.addAll(filasNuevas);
-        }
-        fireTableDataChanged();
-    }
-
-    public void setColumnas(List<String> nuevasColumnas) {
-        columnas.clear();
-
-        if(nuevasColumnas != null){
-            columnas.addAll(nuevasColumnas);
-        }
-        fireTableStructureChanged();
+    public TableModel(List<String> columnas, List<Object[]> filas) {
+        this.columnas = columnas;
+        this.filas = filas;
     }
 
     @Override
@@ -45,15 +24,12 @@ class TablaModel extends AbstractTableModel {
     }
 
     @Override
-    public String getColumnName(int column) {
-        return columnas.get(column);
+    public String getColumnName(int columna) {
+        return columnas.get(columna);
     }
 
     @Override
-    public Object getValueAt(int rowIndex, int columnIndex) {
-        if (rowIndex < 0 || rowIndex >= filas.size()) {
-            return null;
-        }
-        return filas.get(rowIndex)[columnIndex];
+    public Object getValueAt(int fila, int columna) {
+        return filas.get(fila)[columna];
     }
 }
