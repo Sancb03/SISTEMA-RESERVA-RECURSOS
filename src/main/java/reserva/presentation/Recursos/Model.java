@@ -1,43 +1,34 @@
 package reserva.presentation.Recursos;
 
 class RecursosModel {
-    private String codigo;
-    private String nombre;
-    private String categoria;
-    private String estado;
+    private String id;
+    private String categoriaId;
+    private String descripcion;
 
     public RecursosModel() {
     }
 
-    public String getCodigo() {
-        return codigo;
+    public String getId() {
+        return id;
     }
 
-    public void setCodigo(String codigo) {
-        this.codigo = codigo;
+    public void setId(String id) {
+        this.id = id;
     }
 
-    public String getNombre() {
-        return nombre;
+    public String getCategoriaId() {
+        return categoriaId;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public void setCategoriaId(String categoriaId) {
+        this.categoriaId = categoriaId;
     }
 
-    public String getCategoria() {
-        return categoria;
+    public String getDescripcion() {
+        return descripcion;
     }
 
-    public void setCategoria(String categoria) {
-        this.categoria = categoria;
-    }
-
-    public String getEstado() {
-        return estado;
-    }
-
-    public void setEstado(String estado) {
-        this.estado = estado;
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
     }
 }

@@ -1,6 +1,9 @@
 package reserva.presentation.Funcionarios;
 
-import reserva.data.FuncionarioDao;
+import reserva.GeneradorPDF;
+import reserva.presentation.Iconos;
+
+import reserva.data.Data;
 import reserva.logic.Administrador;
 import reserva.logic.Funcionario;
 import reserva.logic.Usuario;
@@ -9,28 +12,25 @@ import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import java.awt.Desktop;
+import java.io.File;
+
 class FuncionariosController {
     private final FuncionariosView view;
     private final FuncionariosModel model;
     private final TablaModel tableModel;
-    private final FuncionarioDao dao;
+    private final Data data;
     private final Usuario usuarioActual;
 
-    public FuncionariosController(FuncionariosView view, Usuario usuarioActual) {
-        this.view = view;
-        this.model = new FuncionariosModel();
-        this.tableModel = new TablaModel();
-        this.dao = new FuncionarioDao();
-        this.usuarioActual = usuarioActual;
-        inicializar();
-    }
-
-    public FuncionariosController(FuncionariosView view, FuncionariosModel model, TablaModel tableModel) {
+    public FuncionariosController(FuncionariosView view,FuncionariosModel model, TablaModel tableModel, Usuario usuarioActual)
+    {
         this.view = view;
         this.model = model;
         this.tableModel = tableModel;
-        this.dao = new FuncionarioDao();
-        this.usuarioActual = null;
+        this.data = Data.instance();
+        this.usuarioActual = usuarioActual;
+
+        inicializar();
     }
 
     public FuncionariosView getView() {
@@ -46,21 +46,26 @@ class FuncionariosController {
     }
 
     private void inicializar() {
-        if (!(usuarioActual instanceof Administrador)) {
-            JOptionPane.showMessageDialog(view.getPanel1(),
-                    "Solo un administrador puede acceder a esta pantalla.");
-            habilitar(false);
-            return;
-        }
 
         view.getListadotable().setModel(tableModel);
+
         cargarListado();
+
+        view.getBuscarButton().setIcon(Iconos.get("search"));
+        view.getGuardarButton().setIcon(Iconos.get("save"));
+        view.getBorrarButton().setIcon(Iconos.get("delete"));
+        view.getLimpiarButton().setIcon(Iconos.get("clear"));
+        view.getImprimirButton().setIcon(Iconos.get("pdf"));
 
         view.getBuscarButton().addActionListener(e -> buscar());
         view.getGuardarButton().addActionListener(e -> guardar());
         view.getBorrarButton().addActionListener(e -> borrar());
         view.getLimpiarButton().addActionListener(e -> limpiar());
-        view.getImprimirButton().addActionListener(e -> cargarListado());
+        view.getImprimirButton().addActionListener(e -> generarPDF());
+    }
+
+    private void generarPDF() {
+        GeneradorPDF.generarDesdeTabla(view.getListadotable(), "Lista de Funcionarios", "Funcionarios.pdf");
     }
 
     private void habilitar(boolean habilitado) {
@@ -73,11 +78,11 @@ class FuncionariosController {
 
     private void buscar() {
         try {
-            String idTexto = view.getIdTField().getText().trim();
-            String nombreTexto = view.getNombreTField().getText().trim();
+            String idTexto = view.getIdTField().getText();
+            String nombreTexto = view.getNombreTField().getText();
 
             if (!idTexto.isEmpty()) {
-                Funcionario f = dao.buscarPorId(Integer.parseInt(idTexto), usuarioActual);
+                Funcionario f = data.buscarFuncionarioPorId(Integer.parseInt(idTexto), usuarioActual);
                 if (f != null) {
                     mostrarEnFormulario(f);
                 } else {
@@ -85,7 +90,7 @@ class FuncionariosController {
                     tableModel.setFilas(new ArrayList<>());
                 }
             } else if (!nombreTexto.isEmpty()) {
-                mostrarEnTabla(dao.buscarPorNombre(nombreTexto, usuarioActual));
+                mostrarEnTabla(data.buscarFuncionariosPorNombre(nombreTexto, usuarioActual));
             } else {
                 cargarListado();
             }
@@ -108,16 +113,23 @@ class FuncionariosController {
             }
 
             int id = Integer.parseInt(idTexto);
-            Funcionario existente = dao.buscarPorId(id, usuarioActual);
+
+            model.setId(id);
+            model.setNombre(nombre);
+            model.setTelefono(telefono);
+
+
+            Funcionario existente = data.buscarFuncionarioPorId(id, usuarioActual);
 
             Funcionario f = new Funcionario();
-            f.setId(id);
-            f.setNombre(nombre);
-            f.setTelefono(telefono);
+            f.setId(model.getId());
+            f.setNombre(model.getNombre());
+            f.setTelefono(model.getTelefono());
 
             boolean ok;
+
             if (existente == null) {
-                ok = dao.guardar(f, usuarioActual);
+                ok = data.guardarFuncionario(f, usuarioActual);
                 if (ok) {
                     JOptionPane.showMessageDialog(view.getPanel1(),
                             "Funcionario creado. Su clave inicial es igual al id (" + id + ").");
@@ -126,7 +138,7 @@ class FuncionariosController {
                             "No se pudo crear el funcionario (¿el id ya pertenece a otro usuario?).");
                 }
             } else {
-                ok = dao.actualizar(f, usuarioActual);
+                ok = data.actualizarFuncionario(f, usuarioActual);
                 if (ok) {
                     JOptionPane.showMessageDialog(view.getPanel1(), "Funcionario modificado.");
                 } else {
@@ -156,7 +168,7 @@ class FuncionariosController {
             int confirmar = JOptionPane.showConfirmDialog(view.getPanel1(),
                     "¿Eliminar al funcionario " + id + "?");
             if (confirmar == JOptionPane.YES_OPTION) {
-                if (dao.eliminar(id, usuarioActual)) {
+                if (data.eliminarFuncionario(id, usuarioActual)) {
                     limpiar();
                     cargarListado();
                 } else {
@@ -180,7 +192,7 @@ class FuncionariosController {
 
     private void cargarListado() {
         try {
-            mostrarEnTabla(dao.listar(usuarioActual));
+            mostrarEnTabla(data.listarFuncionarios(usuarioActual));
         } catch (RuntimeException ex) {
             JOptionPane.showMessageDialog(view.getPanel1(), ex.getMessage());
         }

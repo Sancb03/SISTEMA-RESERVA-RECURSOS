@@ -1,8 +1,11 @@
 package reserva.presentation.Funcionarios;
 
+import reserva.logic.Usuario;
+
 import javax.swing.*;
 
 public class FuncionariosView {
+
     private JPanel panel1;
     private JTextField id_tField;
     private JTextField Nombre_tField;
@@ -25,6 +28,24 @@ public class FuncionariosView {
     private JLabel NombreFunLabel;
     private JLabel TelefonoFunLabel;
     private JPanel buttonsPanel;
+
+
+    private FuncionariosModel model;
+    private FuncionariosController controller;
+    private TablaModel tableModel;
+
+
+    public FuncionariosView(Usuario usuarioActual) {
+
+        model = new FuncionariosModel();
+        tableModel = new TablaModel();
+
+        controller = new FuncionariosController(
+                this, model, tableModel, usuarioActual
+        );
+        Listadotable.setModel(tableModel);
+    }
+
 
     public JPanel getPanel1() {
         return panel1;
@@ -73,5 +94,18 @@ public class FuncionariosView {
     public JTable getListadotable() {
         return Listadotable;
     }
+
+
+
+    public FuncionariosModel getModel() {
+        return model;
+    }
+    public FuncionariosController getController() {
+        return controller;
+    }
+    public TablaModel getTableModel() {
+        return tableModel;
+    }
+
 }
 

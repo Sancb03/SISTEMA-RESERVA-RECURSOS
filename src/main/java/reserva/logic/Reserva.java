@@ -1,57 +1,97 @@
 package reserva.logic;
 
+import jakarta.xml.bind.annotation.*;
+import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import reserva.logic.LocalDateAdapter;
+import reserva.logic.LocalTimeAdapter;
+import reserva.logic.Recurso;
+import reserva.logic.Usuario;
+
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
-
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Reserva {
-    private int id;
-    private int recursoId;
-    private int funcionarioId;
-    private LocalDate fechaInicio;
-    private LocalDate fechaFin;
-    private String estado;
+
+    public static final String ACTIVA = "ACTIVA";
+    public static final String CANCELADA = "CANCELADA";
+
+    @XmlID
+    private String id;
+
+    private String actividad;
+
+    @XmlJavaTypeAdapter(LocalDateAdapter.class)
+    private LocalDate fecha;
+
+    @XmlJavaTypeAdapter(LocalTimeAdapter.class)
+    private LocalTime horaInicio;
+
+    @XmlJavaTypeAdapter(LocalTimeAdapter.class)
+    private LocalTime horaFin;
+
+    @XmlIDREF
+    private Usuario funcionario;
+
+    private String estado = ACTIVA;
+
+    /** Un Recurso por cada categoría que se solicitó (el primero disponible que se encontró). */
+    @XmlIDREF
+    @XmlElementWrapper(name = "recursos")
+    @XmlElement(name = "recurso")
+    private List<Recurso> recursos = new ArrayList<>();
 
     public Reserva() {
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
-    public int getRecursoId() {
-        return recursoId;
+    public String getActividad() {
+        return actividad;
     }
 
-    public void setRecursoId(int recursoId) {
-        this.recursoId = recursoId;
+    public void setActividad(String actividad) {
+        this.actividad = actividad;
     }
 
-    public int getFuncionarioId() {
-        return funcionarioId;
+    public LocalDate getFecha() {
+        return fecha;
     }
 
-    public void setFuncionarioId(int funcionarioId) {
-        this.funcionarioId = funcionarioId;
+    public void setFecha(LocalDate fecha) {
+        this.fecha = fecha;
     }
 
-    public LocalDate getFechaInicio() {
-        return fechaInicio;
+    public LocalTime getHoraInicio() {
+        return horaInicio;
     }
 
-    public void setFechaInicio(LocalDate fechaInicio) {
-        this.fechaInicio = fechaInicio;
+    public void setHoraInicio(LocalTime horaInicio) {
+        this.horaInicio = horaInicio;
     }
 
-    public LocalDate getFechaFin() {
-        return fechaFin;
+    public LocalTime getHoraFin() {
+        return horaFin;
     }
 
-    public void setFechaFin(LocalDate fechaFin) {
-        this.fechaFin = fechaFin;
+    public void setHoraFin(LocalTime horaFin) {
+        this.horaFin = horaFin;
+    }
+
+    public Usuario getFuncionario() {
+        return funcionario;
+    }
+
+    public void setFuncionario(Usuario funcionario) {
+        this.funcionario = funcionario;
     }
 
     public String getEstado() {
@@ -61,4 +101,13 @@ public class Reserva {
     public void setEstado(String estado) {
         this.estado = estado;
     }
+
+    public List<Recurso> getRecursos() {
+        return recursos;
+    }
+
+    public void setRecursos(List<Recurso> recursos) {
+        this.recursos = (recursos != null) ? recursos : new ArrayList<>();
+    }
 }
+

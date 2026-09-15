@@ -1,27 +1,26 @@
 package reserva.logic;
 
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlID;
+
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Categoria {
-    private int id;
-    private String nombre;
+
+    @XmlID
+    private String id;
+
     private String descripcion;
 
     public Categoria() {
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
     }
 
     public String getDescripcion() {

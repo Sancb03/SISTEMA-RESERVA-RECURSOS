@@ -1,6 +1,10 @@
 package reserva.presentation.Login;
 
+
 import reserva.presentation.Login.CambiarClave.CambiarClaveView;
+import reserva.presentation.Tabs.TabsView;
+import reserva.presentation.Iconos;
+import reserva.logic.Usuario;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -12,6 +16,7 @@ public class LoginView extends JFrame implements PropertyChangeListener {
     // Componentes creados por el .form (IntelliJ GUI Designer) - no se instancian a mano,
     // el diseñador los llena en tiempo de compilación a partir de LoginView.form
     private JPanel panel1;
+    private JLabel logoLabel;
     private JLabel idLabel;
     private JLabel claveLabel;
     private JTextField id_tField;
@@ -35,6 +40,17 @@ public class LoginView extends JFrame implements PropertyChangeListener {
         setResizable(false);
         getRootPane().setDefaultButton(ingresarButton);
 
+        if (Iconos.get("icon") != null) {
+            setIconImage(Iconos.get("icon").getImage());
+        }
+        if (logoLabel != null) {
+            logoLabel.setIcon(Iconos.get("loginDialog"));
+            logoLabel.setIconTextGap(8);
+        }
+        ingresarButton.setIcon(Iconos.get("ok"));
+        cancelarButton.setIcon(Iconos.get("cancel"));
+        cambiarClaveButton.setIcon(Iconos.get("clave"));
+
         model = new LoginModel();
         controller = new LoginController(this, model);
         model.addPropertyChangeListener(this);
@@ -49,24 +65,31 @@ public class LoginView extends JFrame implements PropertyChangeListener {
 
     private void onIngresar(ActionEvent e) {
         try {
-            controller.login(id_tField.getText(), new String(clave_tField.getPassword()));
-            JOptionPane.showMessageDialog(panel1,
-                    "Bienvenido, " + model.getUsuarioAutenticado().getNombre());
-            // TODO (equipo): cuando TabsView esté implementada, aquí se debe abrir
-            // la ventana principal (ya con el usuario autenticado en Sesion) y
-            // cerrar este login, por ejemplo:
-            //   new TabsView().setVisible(true);
-            //   dispose();
+            controller.login(
+                    id_tField.getText(),
+                    new String(clave_tField.getPassword())
+            );
+
+            Usuario usuario = model.getUsuarioAutenticado();
+            JOptionPane.showMessageDialog(panel1, "Bienvenido, " + usuario.getNombre());
+
+            new TabsView(usuario).setVisible(true);
+            dispose();
+
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(panel1, ex.getMessage(),
-                    "Error de autenticación", JOptionPane.ERROR_MESSAGE);
+
+            JOptionPane.showMessageDialog(
+                    panel1,
+                    ex.getMessage(),
+                    "Error de autenticación",
+                    JOptionPane.ERROR_MESSAGE
+            );
         }
     }
 
     private void alternarVisibilidadClave() {
         claveVisible = !claveVisible;
         clave_tField.setEchoChar(claveVisible ? (char) 0 : '\u2022');
-        Visibilidadbutton.setText(claveVisible ? "🙈" : "👁️");
     }
 
     public JPanel getPanel() {

@@ -5,12 +5,19 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.data.category.DefaultCategoryDataset;
 
+import reserva.data.Data;
+import reserva.logic.Recurso;
+import reserva.logic.Reserva;
+import reserva.presentation.Iconos;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.DayOfWeek;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class EstadisticasController {
     private final EstadisticasView view;
@@ -48,6 +55,9 @@ public class EstadisticasController {
     }
 
     private void configurarEventos(){
+        view.getCargarRecButton().setIcon(Iconos.get("statistics"));
+        view.getCargarActButton().setIcon(Iconos.get("statistics"));
+
         view.getCargarRecButton().addActionListener(e -> cargarEstadisticasRecursos());
 
         view.getCargarActButton().addActionListener(e -> cargarEstadisticasActividades());
@@ -95,11 +105,26 @@ public class EstadisticasController {
 
             String semana = lunes.format(formato) + " - " + domingo.format(formato);
 
-            model.addRow(new Object[]{semana, 0});
+            int cantidad = contarActividadesEnSemana(lunes, domingo, inicio, fin);
+
+            model.addRow(new Object[]{semana, cantidad});
 
             lunes = lunes.plusWeeks(1);
         }
 
+    }
+
+    /** Cuenta las reservas activas cuya fecha cae en esa semana, sin salirse del rango "desde"/"hasta" pedido. */
+    private int contarActividadesEnSemana(LocalDate lunes, LocalDate domingo, LocalDate rangoInicio, LocalDate rangoFin) {
+        int cantidad = 0;
+        for (Reserva r : Data.instance().listarReservas()) {
+            if (!Reserva.ACTIVA.equals(r.getEstado())) continue;
+            LocalDate fecha = r.getFecha();
+            if (fecha.isBefore(rangoInicio) || fecha.isAfter(rangoFin)) continue;
+            if (fecha.isBefore(lunes) || fecha.isAfter(domingo)) continue;
+            cantidad++;
+        }
+        return cantidad;
     }
 
     private void generarGraficoActividades(){
@@ -150,21 +175,33 @@ public class EstadisticasController {
             return;
         }
 
-        cargarCategoriasRecursos();
+        cargarCategoriasRecursos(inicio, fin);
         generarGraficoRecursos();
     }
 
-    private void cargarCategoriasRecursos(){
+    /** Por cada reserva activa en el rango de fechas, cuenta un recurso reservado por cada categoría a la que pertenece. */
+    private void cargarCategoriasRecursos(LocalDate inicio, LocalDate fin){
         DefaultTableModel model = (DefaultTableModel) view.getEstadisticasRectable().getModel();
 
         model.setRowCount(0);
 
-        //DATOS TEMPORALES SOLO PARA PROBAR LAS TABLAS
+        Map<String, Integer> conteoPorCategoria = new LinkedHashMap<>();
 
-        model.addRow(new Object[]{"Salas", 4});
-        model.addRow(new Object[]{"Computadoras", 7});
+        for (Reserva r : Data.instance().listarReservas()) {
+            if (!Reserva.ACTIVA.equals(r.getEstado())) continue;
+            LocalDate fecha = r.getFecha();
+            if (fecha.isBefore(inicio) || fecha.isAfter(fin)) continue;
 
-        model.addRow(new Object[]{"Proyectores", 3});
+            for (Recurso recurso : r.getRecursos()) {
+                if (recurso.getCategoria() == null) continue;
+                String nombreCategoria = recurso.getCategoria().getDescripcion();
+                conteoPorCategoria.merge(nombreCategoria, 1, Integer::sum);
+            }
+        }
+
+        for (Map.Entry<String, Integer> entrada : conteoPorCategoria.entrySet()) {
+            model.addRow(new Object[]{entrada.getKey(), entrada.getValue()});
+        }
     }
 
     private void generarGraficoRecursos(){

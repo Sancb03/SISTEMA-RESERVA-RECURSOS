@@ -1,5 +1,7 @@
 package reserva.presentation.Login.CambiarClave;
 
+import reserva.presentation.Iconos;
+
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 
@@ -30,6 +32,12 @@ public class CambiarClaveView extends JFrame {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setResizable(false);
+
+        if (Iconos.get("clave") != null) {
+            setIconImage(Iconos.get("clave").getImage());
+        }
+        guardarButton.setIcon(Iconos.get("save"));
+        cancelarButton.setIcon(Iconos.get("cancel"));
 
         model = new CambiarClaveModel();
         controller = new CambiarClaveController(this, model);
@@ -73,7 +81,6 @@ public class CambiarClaveView extends JFrame {
     private void alternarVisibilidad(JPasswordField campo, JButton boton) {
         boolean estabaOculta = campo.getEchoChar() != 0;
         campo.setEchoChar(estabaOculta ? (char) 0 : '\u2022');
-        boton.setText(estabaOculta ? "🙈" : "...");
     }
 
     private void limpiar() {
