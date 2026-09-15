@@ -1,10 +1,13 @@
 package reserva.presentation.Funcionarios;
 
+import reserva.logic.Funcionario;
 import reserva.logic.Usuario;
 
 import javax.swing.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
-public class FuncionariosView {
+public class FuncionariosView implements PropertyChangeListener {
 
     private JPanel panel1;
     private JTextField id_tField;
@@ -29,23 +32,106 @@ public class FuncionariosView {
     private JLabel TelefonoFunLabel;
     private JPanel buttonsPanel;
 
-
     private FuncionariosModel model;
     private FuncionariosController controller;
-    private TablaModel tableModel;
-
 
     public FuncionariosView(Usuario usuarioActual) {
 
         model = new FuncionariosModel();
-        tableModel = new TablaModel();
 
         controller = new FuncionariosController(
-                this, model, tableModel, usuarioActual
+                this,
+                model,
+                usuarioActual
         );
-        Listadotable.setModel(tableModel);
+
+        buscarButton.addActionListener(e -> controller.buscar());
+
+        guardarButton.addActionListener(e -> {
+            Funcionario f = take();
+            controller.guardar(f);
+        });
+
+        borrarButton.addActionListener(e ->
+                controller.borrar(idFun_tField.getText())
+        );
+
+        limpiarButton.addActionListener(e ->
+                controller.limpiar()
+        );
+
+        imprimirButton.addActionListener(e ->
+                controller.generarPDF()
+        );
     }
 
+    public Funcionario take() {
+
+        Funcionario f = new Funcionario();
+
+        f.setId(Integer.parseInt(idFun_tField.getText().trim()));
+        f.setNombre(NombreFun_tField.getText().trim());
+        f.setTelefono(TelefonoFun_tField.getText().trim());
+
+        return f;
+    }
+
+    public void setController(FuncionariosController controller) {
+        this.controller = controller;
+    }
+
+    public void setModel(FuncionariosModel model) {
+        this.model = model;
+        model.addPropertyChangeListener(this);
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+
+        switch (evt.getPropertyName()) {
+
+            case FuncionariosModel.LIST:
+
+                int[] cols = {
+                        TablaModel.ID,
+                        TablaModel.NOMBRE,
+                        TablaModel.TELEFONO
+                };
+
+                Listadotable.setModel(
+                        new TablaModel(
+                                cols,
+                                model.getListado()
+                        )
+                );
+
+                break;
+
+            case FuncionariosModel.CURRENT:
+
+                Funcionario actual = model.getCurrent();
+
+                if (actual != null) {
+
+                    idFun_tField.setText(
+                            String.valueOf(actual.getId())
+                    );
+
+                    NombreFun_tField.setText(
+                            actual.getNombre()
+                    );
+
+                    TelefonoFun_tField.setText(
+                            actual.getTelefono()
+                    );
+                }
+
+                break;
+        }
+
+        panel1.revalidate();
+        panel1.repaint();
+    }
 
     public JPanel getPanel1() {
         return panel1;
@@ -95,17 +181,11 @@ public class FuncionariosView {
         return Listadotable;
     }
 
-
-
     public FuncionariosModel getModel() {
         return model;
     }
+
     public FuncionariosController getController() {
         return controller;
     }
-    public TablaModel getTableModel() {
-        return tableModel;
-    }
-
 }
-
