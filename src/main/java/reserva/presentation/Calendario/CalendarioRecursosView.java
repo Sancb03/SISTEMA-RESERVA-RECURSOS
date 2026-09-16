@@ -12,7 +12,7 @@ public class CalendarioRecursosView implements PropertyChangeListener {
 
     private JTextField Fecha_tField;
     private JButton Fechabutton;
-    private JComboBox Descripcion_cBox;
+    private JComboBox<Categoria> Descripcion_cBox;
     private JButton cargarButton;
     private JButton imprimirButton;
     private JTable CalendarioRectable;
@@ -30,9 +30,12 @@ public class CalendarioRecursosView implements PropertyChangeListener {
 
         cargarButton.addActionListener(e -> {
 
+            Categoria categoria =
+                    (Categoria) Descripcion_cBox.getSelectedItem();
+
             controller.cargarCalendarioRecursos(
                     datePicker.getDate(),
-                    Descripcion_cBox.getSelectedItem()
+                    categoria
             );
         });
 
@@ -83,7 +86,7 @@ public class CalendarioRecursosView implements PropertyChangeListener {
         return Fechabutton;
     }
 
-    public JComboBox getDescripcion_cBox() {
+    public JComboBox<Categoria> getDescripcion_cBox() {
         return Descripcion_cBox;
     }
 
@@ -103,18 +106,13 @@ public class CalendarioRecursosView implements PropertyChangeListener {
         return datePicker;
     }
 
-    public void cargarCategoriasEnCombo(List<Categoria> categorias) {
-
-        Object seleccionActual = Descripcion_cBox.getSelectedItem();
+    public void cargarCategoriasEnCombo(
+            List<Categoria> categorias) {
 
         Descripcion_cBox.removeAllItems();
 
-        for (Categoria c : categorias) {
-            Descripcion_cBox.addItem(c);
-        }
-
-        if (seleccionActual != null) {
-            Descripcion_cBox.setSelectedItem(seleccionActual);
+        for (Categoria categoria : categorias) {
+            Descripcion_cBox.addItem(categoria);
         }
     }
 }
