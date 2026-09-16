@@ -309,10 +309,19 @@ public class CalendarioController {
 
     public void generarPDFRecursos() {
 
+        LocalDate fecha = recursosView.getDatePicker().getDate();
+
+        String titulo = "Calendario de Recursos";
+
+        if(fecha != null) {
+            DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+            titulo += " - " + fecha.format(formato);
+        }
+
         GeneradorPDF.generarDesdeTabla(
                 recursosView.getCalendarioRectable(),
-                "Calendario de Recursos",
-                "CalendarioRecursos.pdf"
+                titulo, "CalendarioRecursos.pdf"
         );
     }
 
