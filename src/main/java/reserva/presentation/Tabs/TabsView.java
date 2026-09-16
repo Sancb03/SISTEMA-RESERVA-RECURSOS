@@ -19,7 +19,7 @@ import java.awt.*;
 public class TabsView extends JFrame {
 
 
-    private JPanel panel1;
+    private JPanel Tabs_panel;
     private JTabbedPane tabsPrincipal;
     private JTabbedPane CalendarioSubTabs;
     private JPanel FuncionariosTab;
@@ -34,7 +34,7 @@ public class TabsView extends JFrame {
     public TabsView(Usuario usuarioActual) {
         setTitle("Sistema de Reserva de Recursos"
                 + (usuarioActual != null ? " - " + usuarioActual.getNombre() + " (" + usuarioActual.getRol() + ")" : ""));
-        setContentPane(panel1);
+        setContentPane(Tabs_panel);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1100, 700);
         setLocationRelativeTo(null);

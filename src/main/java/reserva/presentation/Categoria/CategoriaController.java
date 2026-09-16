@@ -133,6 +133,13 @@ public class CategoriaController {
                             "Categoría creada con id " +
                                     c.getId() + "."
                     );
+
+                } else {
+
+                    JOptionPane.showMessageDialog(
+                            view.getCategoriaPanel(),
+                            "No se pudo crear la categoría."
+                    );
                 }
 
             } else {
@@ -147,6 +154,13 @@ public class CategoriaController {
                     JOptionPane.showMessageDialog(
                             view.getCategoriaPanel(),
                             "Categoría modificada."
+                    );
+
+                } else {
+
+                    JOptionPane.showMessageDialog(
+                            view.getCategoriaPanel(),
+                            "No se encontró una categoría con ese id para modificar."
                     );
                 }
             }

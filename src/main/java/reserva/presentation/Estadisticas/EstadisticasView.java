@@ -26,7 +26,7 @@ public class EstadisticasView implements PropertyChangeListener {
     private DatePicker DPRecursosFin;
     private DatePicker DPActividadesInicio;
     private DatePicker DPActividadesFin;
-    private JPanel panelPrincipal;
+    private JPanel Estadisticas_panel;
 
     private EstadisticasController controller;
     private EstadisticasModel model;
@@ -87,12 +87,12 @@ public class EstadisticasView implements PropertyChangeListener {
                 break;
         }
 
-        panelPrincipal.revalidate();
-        panelPrincipal.repaint();
+        Estadisticas_panel.revalidate();
+        Estadisticas_panel.repaint();
     }
 
     public JPanel getPanelPrincipal() {
-        return panelPrincipal;
+        return Estadisticas_panel;
     }
 
     public DatePicker getDPActividadesInicio() {

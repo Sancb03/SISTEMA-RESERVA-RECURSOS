@@ -12,7 +12,7 @@ import java.util.List;
 
 public class RecursosView implements PropertyChangeListener {
 
-    private JPanel panel1;
+    private JPanel Recursos_Panel;
     private JComboBox Categoria_cBox;
     private JTextField Descripcion_tField;
     private JButton buscarButton;
@@ -197,8 +197,8 @@ public class RecursosView implements PropertyChangeListener {
                 break;
         }
 
-        panel1.revalidate();
-        panel1.repaint();
+        Recursos_Panel.revalidate();
+        Recursos_Panel.repaint();
     }
 
     public void cargarCategoriasEnCombos(
@@ -274,7 +274,7 @@ public class RecursosView implements PropertyChangeListener {
     }
 
     public JPanel getPanel1() {
-        return panel1;
+        return Recursos_Panel;
     }
 
     public JComboBox getCategoriaCBox() {

@@ -9,7 +9,7 @@ import java.beans.PropertyChangeListener;
 
 public class FuncionariosView implements PropertyChangeListener {
 
-    private JPanel panel1;
+    private JPanel Funcionarios_panel;
     private JTextField id_tField;
     private JTextField Nombre_tField;
     private JButton buscarButton;
@@ -129,12 +129,12 @@ public class FuncionariosView implements PropertyChangeListener {
                 break;
         }
 
-        panel1.revalidate();
-        panel1.repaint();
+        Funcionarios_panel.revalidate();
+        Funcionarios_panel.repaint();
     }
 
     public JPanel getPanel1() {
-        return panel1;
+        return Funcionarios_panel;
     }
 
     public JTextField getIdTField() {

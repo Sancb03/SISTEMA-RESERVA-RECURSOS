@@ -24,7 +24,7 @@ public class CategoriasView implements PropertyChangeListener {
     private JLabel idLabel;
     private JLabel descripcionLabel;
     private JScrollPane ListadoScroll;
-    private JPanel panelPrincipal;
+    private JPanel Categoria_panel;
 
     private CategoriaModel model;
     private CategoriaController controller;
@@ -68,6 +68,7 @@ public class CategoriasView implements PropertyChangeListener {
                         );
                     }
                 });
+        id_tField.setEnabled(false);
     }
 
     public Categoria take() {
@@ -145,7 +146,7 @@ public class CategoriasView implements PropertyChangeListener {
         return CategoriaPanel;
     }
 
-    public JPanel getPanelPrincipal() { return panelPrincipal; }
+    public JPanel getPanelPrincipal() { return Categoria_panel; }
 
     public JTextField getDescripcionBusquedaTField() {
         return Descripcion_tField;

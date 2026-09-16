@@ -22,7 +22,7 @@ import java.util.List;
 public class ReservasView extends JPanel implements PropertyChangeListener {
 
     // Componentes creados por el .form
-    private JPanel mainPanel;
+    private JPanel Reservas_Panel;
     private JTextField Frase_tField;
     private JTextField Actividad_tField;
     private JTextField Fecha_tField;
@@ -62,7 +62,7 @@ public class ReservasView extends JPanel implements PropertyChangeListener {
     public ReservasView() {
 
         setLayout(new BorderLayout());
-        add(mainPanel, BorderLayout.CENTER);
+        add(Reservas_Panel, BorderLayout.CENTER);
 
         // Primero configuramos componentes internos
         configurarHoras();

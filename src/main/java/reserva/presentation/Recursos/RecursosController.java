@@ -170,85 +170,50 @@ public class RecursosController {
 
         try {
 
-            if (r.getId() == null ||
-                    r.getId().isBlank() ||
+            if (r.getId() == null || r.getId().isBlank() ||
                     r.getCategoria() == null ||
-                    r.getDescripcion() == null ||
-                    r.getDescripcion().isBlank()) {
+                    r.getDescripcion() == null || r.getDescripcion().isBlank()) {
 
                 JOptionPane.showMessageDialog(
                         view.getPanel1(),
                         "El id, la categoría y la descripción son obligatorios."
                 );
-
                 return;
             }
 
-            Recurso existente =
-                    data.buscarRecursoPorId(
-                            r.getId(),
-                            usuarioActual
-                    );
+            Recurso actual = model.getCurrent();
+            boolean esEdicion = actual != null && actual.getId() != null && !actual.getId().isBlank();
 
             boolean ok;
 
-            if (existente == null) {
-
-                ok = data.guardarRecurso(
-                        r,
-                        usuarioActual
-                );
+            if (!esEdicion) {
+                // Modo CREAR: si ya existe un recurso con ese id, es un ERROR (no una edición encubierta).
+                ok = data.guardarRecurso(r, usuarioActual);
 
                 if (ok) {
-
-                    JOptionPane.showMessageDialog(
-                            view.getPanel1(),
-                            "Recurso creado."
-                    );
-
+                    JOptionPane.showMessageDialog(view.getPanel1(), "Recurso creado.");
                 } else {
-
-                    JOptionPane.showMessageDialog(
-                            view.getPanel1(),
-                            "No se pudo crear el recurso."
-                    );
+                    JOptionPane.showMessageDialog(view.getPanel1(), "Ya existe un recurso con ese id. Elija otro.");
                 }
 
             } else {
-
-                ok = data.actualizarRecurso(
-                        r,
-                        usuarioActual
-                );
+                // Modo EDITAR: el campo id queda deshabilitado mientras se edita, así que sigue siendo el mismo recurso.
+                ok = data.actualizarRecurso(r, usuarioActual);
 
                 if (ok) {
-
-                    JOptionPane.showMessageDialog(
-                            view.getPanel1(),
-                            "Recurso modificado."
-                    );
-
+                    JOptionPane.showMessageDialog(view.getPanel1(), "Recurso modificado.");
                 } else {
-
-                    JOptionPane.showMessageDialog(
-                            view.getPanel1(),
-                            "No se pudo modificar el recurso."
-                    );
+                    JOptionPane.showMessageDialog(view.getPanel1(), "No se pudo modificar el recurso.");
                 }
             }
 
             if (ok) {
-
                 limpiar();
                 cargarListado();
             }
 
         } catch (RuntimeException ex) {
-
-            JOptionPane.showMessageDialog(
-                    view.getPanel1(),
-                    ex.getMessage()
-            );
+            JOptionPane.showMessageDialog(view.getPanel1(), ex.getMessage());
         }
     }
 
