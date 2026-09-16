@@ -12,6 +12,11 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.LinkedHashMap;
+
+import reserva.data.*;
+import reserva.logic.*;
 
 public class EstadisticasController {
 
@@ -56,19 +61,46 @@ public class EstadisticasController {
             return;
         }
 
-        cargarCategoriasRecursos();
+        cargarCategoriasRecursos(inicio, fin);
 
         generarGraficoRecursos();
     }
 
-    private void cargarCategoriasRecursos() {
+    private void cargarCategoriasRecursos(LocalDate inicio, LocalDate fin) {
+
+        List<Reserva> reservas = Data.instance().listarReservas();
+
+        Map<String, Integer> cantidades = new LinkedHashMap<>();
+
+        for(Reserva reserva : reservas) {
+            if(reserva.getFecha() == null){
+                continue;
+            }
+
+            if(reserva.getFecha().isBefore(inicio) || reserva.getFecha().isAfter(fin)){
+                continue;
+            }
+
+            if(!Reserva.ACTIVA.equals(reserva.getEstado())){
+                continue;
+            }
+
+            for(Recurso recurso : reserva.getRecursos()){
+                if(recurso.getCategoria() == null){
+                    continue;
+                }
+
+                String categoria = recurso.getCategoria().getDescripcion();
+
+                cantidades.put(categoria, cantidades.getOrDefault(categoria, 0) + 1);
+            }
+        }
 
         List<Object[]> filas = new ArrayList<>();
 
-        // DATOS TEMPORALES SOLO PARA PROBAR
-        filas.add(new Object[]{"Salas", 4});
-        filas.add(new Object[]{"Computadoras", 7});
-        filas.add(new Object[]{"Proyectores", 3});
+        for(Map.Entry<String, Integer> dato : cantidades.entrySet()) {
+            filas.add(new Object[]{dato.getKey(), dato.getValue()});
+        }
 
         model.setRecursos(filas);
     }
@@ -98,9 +130,9 @@ public class EstadisticasController {
         generarGraficoActividades();
     }
 
-    private void cargarSemanas(
-            LocalDate inicio,
-            LocalDate fin) {
+    private void cargarSemanas(LocalDate inicio, LocalDate fin) {
+
+        List<Reserva> reservas = Data.instance().listarReservas();
 
         List<Object[]> filas = new ArrayList<>();
 
@@ -115,17 +147,31 @@ public class EstadisticasController {
             LocalDate domingo =
                     lunes.plusDays(6);
 
-            String semana =
-                    lunes.format(formato)
-                            + " - "
-                            + domingo.format(formato);
+            int cantidad = 0;
 
-            filas.add(
-                    new Object[]{
-                            semana,
-                            0
-                    }
-            );
+            for(Reserva reserva : reservas) {
+                if(reserva.getFecha() == null){
+                    continue;
+                }
+
+                if(!Reserva.ACTIVA.equals(reserva.getEstado())){
+                    continue;
+                }
+
+                LocalDate fechaReserva = reserva.getFecha();
+
+                boolean dentroDelRangoSleccionado = !fechaReserva.isBefore(inicio) && !fechaReserva.isAfter(fin);
+
+                boolean dentroDeLaSemana = !fechaReserva.isBefore(lunes) && fechaReserva.isAfter(domingo);
+
+                if(dentroDelRangoSleccionado && dentroDeLaSemana) {
+                    cantidad++;
+                }
+            }
+
+            String semana = lunes.format(formato) + " - " + domingo.format(formato);
+
+            filas.add( new Object[]{ semana, cantidad } );
 
             lunes = lunes.plusWeeks(1);
         }
