@@ -7,7 +7,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 
-/** Guarda/lee un objeto Data completo en un archivo XML, vía JAXB. */
+// Guarda/lee un objeto Data completo en un archivo XML, vía JAXB
 public class XmlPersister {
 
     private final String path;
