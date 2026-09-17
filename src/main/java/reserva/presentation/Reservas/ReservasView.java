@@ -47,8 +47,6 @@ public class ReservasView extends JPanel implements PropertyChangeListener {
     private JScrollPane MiReservaScrolll;
     private JPanel CategoriaPanel;
     private JScrollPane CategoriaScroll;
-    private JScrollPane RecursosDisponiblesScroll;
-    private JList RecursosDisponiblesList;
 
     private static final DateTimeFormatter FORMATO_FECHA =
             DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -57,7 +55,6 @@ public class ReservasView extends JPanel implements PropertyChangeListener {
     private ReservasModel model;
 
     private DefaultListModel<Categoria> categoriasListModel;
-    private DefaultListModel<Recurso> recursosDisponiblesListModel;
 
     public ReservasView() {
 
@@ -67,7 +64,6 @@ public class ReservasView extends JPanel implements PropertyChangeListener {
         // Primero configuramos componentes internos
         configurarHoras();
         configurarListaCategorias();
-        configurarListaRecursosDisponibles();
 
         // MVC
         model = new ReservasModel();
@@ -102,10 +98,9 @@ public class ReservasView extends JPanel implements PropertyChangeListener {
         );
 
         // Eventos
-        Fechabutton.addActionListener(e -> {
-            elegirFecha();
-            refrescarRecursosDisponibles();
-        });
+        Fechabutton.addActionListener(e ->
+                elegirFecha()
+        );
 
         reservarButton.addActionListener(e ->
                 onReservar()
@@ -126,48 +121,6 @@ public class ReservasView extends JPanel implements PropertyChangeListener {
         extraerButton.addActionListener(e ->
                 onExtraerConIA()
         );
-
-        Categorialist.addListSelectionListener(e -> {
-
-            if (!e.getValueIsAdjusting()) {
-                refrescarRecursosDisponibles();
-            }
-        });
-
-        HoraInicio_cBox.addItemListener(e ->
-                refrescarRecursosDisponibles()
-        );
-
-        HoraFin_cBox.addItemListener(e ->
-                refrescarRecursosDisponibles()
-        );
-
-        Fecha_tField.getDocument()
-                .addDocumentListener(
-                        new DocumentListener() {
-
-                            @Override
-                            public void insertUpdate(
-                                    DocumentEvent e) {
-
-                                refrescarRecursosDisponibles();
-                            }
-
-                            @Override
-                            public void removeUpdate(
-                                    DocumentEvent e) {
-
-                                refrescarRecursosDisponibles();
-                            }
-
-                            @Override
-                            public void changedUpdate(
-                                    DocumentEvent e) {
-
-                                refrescarRecursosDisponibles();
-                            }
-                        }
-                );
 
         try {
 
@@ -328,62 +281,6 @@ public class ReservasView extends JPanel implements PropertyChangeListener {
         );
     }
 
-    private void configurarListaRecursosDisponibles() {
-
-        recursosDisponiblesListModel =
-                new DefaultListModel<>();
-
-        RecursosDisponiblesList.setModel(
-                recursosDisponiblesListModel
-        );
-
-        RecursosDisponiblesList.setSelectionMode(
-                ListSelectionModel.MULTIPLE_INTERVAL_SELECTION
-        );
-
-        RecursosDisponiblesList.setCellRenderer(
-                new DefaultListCellRenderer() {
-
-                    @Override
-                    public Component getListCellRendererComponent(
-                            JList list,
-                            Object value,
-                            int index,
-                            boolean isSelected,
-                            boolean cellHasFocus) {
-
-                        super.getListCellRendererComponent(
-                                list,
-                                value,
-                                index,
-                                isSelected,
-                                cellHasFocus
-                        );
-
-                        if (value instanceof Recurso recurso) {
-
-                            String categoria =
-                                    recurso.getCategoria() != null
-                                            ? recurso.getCategoria()
-                                            .getDescripcion()
-                                            : "";
-
-                            setText(
-                                    recurso.getId()
-                                            + " - "
-                                            + recurso.getDescripcion()
-                                            + " ("
-                                            + categoria
-                                            + ")"
-                            );
-                        }
-
-                        return this;
-                    }
-                }
-        );
-    }
-
     private void refrescarListaCategorias() {
 
         categoriasListModel.clear();
@@ -397,83 +294,20 @@ public class ReservasView extends JPanel implements PropertyChangeListener {
         }
     }
 
-    private void refrescarRecursosDisponibles() {
+    private LocalDate parsearFecha(
+            String texto) {
 
-        recursosDisponiblesListModel.clear();
+        if (texto == null ||
+                texto.isBlank()) {
 
-        LocalDate fecha =
-                parsearFecha(
-                        Fecha_tField.getText()
-                );
-
-        LocalTime horaInicio =
-                parsearHoraCombo(
-                        HoraInicio_cBox
-                );
-
-        LocalTime horaFin =
-                parsearHoraCombo(
-                        HoraFin_cBox
-                );
-
-        List<Categoria> seleccionadas =
-                new ArrayList<>();
-
-        for (Object valor :
-                Categorialist
-                        .getSelectedValuesList()) {
-
-            seleccionadas.add(
-                    (Categoria) valor
-            );
-        }
-
-        if (fecha == null
-                || horaInicio == null
-                || horaFin == null
-                || !horaInicio.isBefore(horaFin)
-                || seleccionadas.isEmpty()) {
-
-            return;
-        }
-
-        try {
-
-            List<Recurso> disponibles =
-                    controller.listarRecursosDisponibles(
-                            seleccionadas,
-                            fecha,
-                            horaInicio,
-                            horaFin
-                    );
-
-            for (Recurso recurso :
-                    disponibles) {
-
-                recursosDisponiblesListModel
-                        .addElement(recurso);
-            }
-
-        } catch (Exception ex) {
-
-            // Se deja vacía la lista
-        }
-    }
-
-    private LocalTime parsearHoraCombo(
-            JComboBox combo) {
-
-        Object valor =
-                combo.getSelectedItem();
-
-        if (valor == null) {
             return null;
         }
 
         try {
 
-            return LocalTime.parse(
-                    String.valueOf(valor)
+            return LocalDate.parse(
+                    texto.trim(),
+                    FORMATO_FECHA
             );
 
         } catch (Exception ex) {
@@ -550,28 +384,6 @@ public class ReservasView extends JPanel implements PropertyChangeListener {
         }
     }
 
-    private LocalDate parsearFecha(
-            String texto) {
-
-        if (texto == null ||
-                texto.isBlank()) {
-
-            return null;
-        }
-
-        try {
-
-            return LocalDate.parse(
-                    texto.trim(),
-                    FORMATO_FECHA
-            );
-
-        } catch (Exception ex) {
-
-            return null;
-        }
-    }
-
     private void onReservar() {
 
         try {
@@ -618,25 +430,17 @@ public class ReservasView extends JPanel implements PropertyChangeListener {
                 );
             }
 
-            List<Recurso> recursosElegidos =
-                    new ArrayList<>();
-
-            for (Object valor :
-                    RecursosDisponiblesList
-                            .getSelectedValuesList()) {
-
-                recursosElegidos.add(
-                        (Recurso) valor
-                );
-            }
-
+            // El sistema asigna solo el primer recurso disponible de
+            // cada categoría (tal como pide el enunciado) — ya no hay
+            // selección manual de recurso, así que esta lista siempre
+            // va vacía.
             controller.reservar(
                     Actividad_tField.getText(),
                     fecha,
                     horaInicio,
                     horaFin,
                     seleccionadas,
-                    recursosElegidos
+                    List.of()
             );
 
             JOptionPane.showMessageDialog(
@@ -803,8 +607,6 @@ public class ReservasView extends JPanel implements PropertyChangeListener {
                             .getCategoriasRecurso()
             );
         }
-
-        refrescarRecursosDisponibles();
     }
 
     private void seleccionarHora(
@@ -892,7 +694,5 @@ public class ReservasView extends JPanel implements PropertyChangeListener {
         HoraFin_cBox.setSelectedIndex(0);
 
         Categorialist.clearSelection();
-
-        recursosDisponiblesListModel.clear();
     }
 }

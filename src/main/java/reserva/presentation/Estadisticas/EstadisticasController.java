@@ -162,7 +162,7 @@ public class EstadisticasController {
 
                 boolean dentroDelRangoSleccionado = !fechaReserva.isBefore(inicio) && !fechaReserva.isAfter(fin);
 
-                boolean dentroDeLaSemana = !fechaReserva.isBefore(lunes) && fechaReserva.isAfter(domingo);
+                boolean dentroDeLaSemana = !fechaReserva.isBefore(lunes) && !fechaReserva.isAfter(domingo);
 
                 if(dentroDelRangoSleccionado && dentroDeLaSemana) {
                     cantidad++;
