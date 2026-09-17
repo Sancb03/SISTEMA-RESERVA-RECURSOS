@@ -1,16 +1,18 @@
 package reserva.presentation.Recursos;
 
 import reserva.logic.Categoria;
+import reserva.logic.Recurso;
 import reserva.logic.Usuario;
 
 import javax.swing.*;
 import java.awt.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.List;
 
-public class RecursosView {
+public class RecursosView implements PropertyChangeListener {
 
-    // Componentes creados por el .form (IntelliJ GUI Designer)
-    private JPanel panel1;
+    private JPanel Recursos_Panel;
     private JComboBox Categoria_cBox;
     private JTextField Descripcion_tField;
     private JButton buscarButton;
@@ -33,78 +35,246 @@ public class RecursosView {
 
     private RecursosModel model;
     private RecursosController controller;
-    private TablaModel tableModel;
 
     public RecursosView(Usuario usuarioActual) {
+
         model = new RecursosModel();
-        tableModel = new TablaModel();
 
         ListCellRenderer<Object> renderizador = new DefaultListCellRenderer() {
+
             @Override
-            public Component getListCellRendererComponent(JList list, Object value, int index,
-                                                            boolean isSelected, boolean cellHasFocus) {
-                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+            public Component getListCellRendererComponent(
+                    JList list,
+                    Object value,
+                    int index,
+                    boolean isSelected,
+                    boolean cellHasFocus) {
+
+                super.getListCellRendererComponent(
+                        list,
+                        value,
+                        index,
+                        isSelected,
+                        cellHasFocus
+                );
+
                 if (value instanceof Categoria categoria) {
-                    setText(categoria.getDescripcion());
+
+                    setText(
+                            categoria.getDescripcion()
+                    );
+
                 } else if (value == null) {
+
                     setText("(todas)");
                 }
+
                 return this;
             }
         };
+
         Categoria_cBox.setRenderer(renderizador);
         CategoriaRec_cBox.setRenderer(renderizador);
 
-        controller = new RecursosController(this, model, tableModel, usuarioActual);
-        Listadotable.setModel(tableModel);
+        controller = new RecursosController(
+                this,
+                model,
+                usuarioActual
+        );
+
+        buscarButton.addActionListener(e ->
+                controller.buscar()
+        );
+
+        guardarButton.addActionListener(e ->
+                controller.guardar(take())
+        );
+
+        borrarButton.addActionListener(e ->
+                controller.borrar()
+        );
+
+        limpiarButton.addActionListener(e ->
+                controller.limpiar()
+        );
+
+        imprimirButton.addActionListener(e ->
+                controller.generarPDF()
+        );
+
+        Listadotable.getSelectionModel()
+                .addListSelectionListener(e -> {
+
+                    if (!e.getValueIsAdjusting()) {
+
+                        controller.seleccionarRecurso(
+                                Listadotable.getSelectedRow()
+                        );
+                    }
+                });
     }
 
-    /** Llena los dos combos de categoría: el de filtro (con opción "todas") y el del formulario. */
-    void cargarCategoriasEnCombos(List<Categoria> categorias) {
+    public Recurso take() {
+
+        Recurso r = new Recurso();
+
+        r.setId(
+                idRec_tField.getText().trim()
+        );
+
+        r.setCategoria(
+                getCategoriaSeleccionadaRec()
+        );
+
+        r.setDescripcion(
+                DescripcionRec_tField.getText().trim()
+        );
+
+        return r;
+    }
+
+    public void setController(RecursosController controller) {
+        this.controller = controller;
+    }
+
+    public void setModel(RecursosModel model) {
+        this.model = model;
+        model.addPropertyChangeListener(this);
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+
+        switch (evt.getPropertyName()) {
+
+            case RecursosModel.LIST:
+
+                int[] cols = {
+                        TablaModel.ID,
+                        TablaModel.CATEGORIA,
+                        TablaModel.DESCRIPCION
+                };
+
+                Listadotable.setModel(
+                        new TablaModel(
+                                cols,
+                                model.getListado()
+                        )
+                );
+
+                break;
+
+            case RecursosModel.CURRENT:
+
+                Recurso actual =
+                        model.getCurrent();
+
+                if (actual != null) {
+
+                    idRec_tField.setText(
+                            actual.getId() == null
+                                    ? ""
+                                    : actual.getId()
+                    );
+
+                    DescripcionRec_tField.setText(
+                            actual.getDescripcion() == null
+                                    ? ""
+                                    : actual.getDescripcion()
+                    );
+
+                    seleccionarCategoriaRec(
+                            actual.getCategoria()
+                    );
+
+                    boolean nuevo =
+                            actual.getId() == null ||
+                                    actual.getId().isBlank();
+
+                    idRec_tField.setEnabled(nuevo);
+                }
+
+                break;
+        }
+
+        Recursos_Panel.revalidate();
+        Recursos_Panel.repaint();
+    }
+
+    public void cargarCategoriasEnCombos(
+            List<Categoria> categorias) {
+
         Categoria_cBox.removeAllItems();
-        Categoria_cBox.addItem(null); // "(todas)", ver renderer
+        Categoria_cBox.addItem(null);
+
         for (Categoria c : categorias) {
             Categoria_cBox.addItem(c);
         }
 
         CategoriaRec_cBox.removeAllItems();
+
         for (Categoria c : categorias) {
             CategoriaRec_cBox.addItem(c);
         }
     }
 
-    Categoria getCategoriaSeleccionadaBusqueda() {
-        Object seleccionado = Categoria_cBox.getSelectedItem();
-        return (seleccionado instanceof Categoria) ? (Categoria) seleccionado : null;
+    public Categoria getCategoriaSeleccionadaBusqueda() {
+
+        Object seleccionado =
+                Categoria_cBox.getSelectedItem();
+
+        return seleccionado instanceof Categoria
+                ? (Categoria) seleccionado
+                : null;
     }
 
-    Categoria getCategoriaSeleccionadaRec() {
-        Object seleccionado = CategoriaRec_cBox.getSelectedItem();
-        return (seleccionado instanceof Categoria) ? (Categoria) seleccionado : null;
+    public Categoria getCategoriaSeleccionadaRec() {
+
+        Object seleccionado =
+                CategoriaRec_cBox.getSelectedItem();
+
+        return seleccionado instanceof Categoria
+                ? (Categoria) seleccionado
+                : null;
     }
 
-    void seleccionarCategoriaRec(Categoria categoria) {
+    public void seleccionarCategoriaRec(
+            Categoria categoria) {
+
         if (categoria == null) {
+
             CategoriaRec_cBox.setSelectedItem(null);
             return;
         }
-        for (int i = 0; i < CategoriaRec_cBox.getItemCount(); i++) {
-            Object item = CategoriaRec_cBox.getItemAt(i);
-            if (item instanceof Categoria c && c.getId().equals(categoria.getId())) {
+
+        for (int i = 0;
+             i < CategoriaRec_cBox.getItemCount();
+             i++) {
+
+            Object item =
+                    CategoriaRec_cBox.getItemAt(i);
+
+            if (item instanceof Categoria c &&
+                    c.getId().equals(
+                            categoria.getId()
+                    )) {
+
                 CategoriaRec_cBox.setSelectedIndex(i);
                 return;
             }
         }
     }
 
-    void limpiarCombos() {
+    public void limpiarCombos() {
+
         if (CategoriaRec_cBox.getItemCount() > 0) {
+
             CategoriaRec_cBox.setSelectedIndex(0);
         }
     }
 
     public JPanel getPanel1() {
-        return panel1;
+        return Recursos_Panel;
     }
 
     public JComboBox getCategoriaCBox() {
@@ -157,9 +327,5 @@ public class RecursosView {
 
     public RecursosController getController() {
         return controller;
-    }
-
-    public TablaModel getTableModel() {
-        return tableModel;
     }
 }

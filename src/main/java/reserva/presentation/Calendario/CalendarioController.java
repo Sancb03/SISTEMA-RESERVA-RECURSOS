@@ -1,372 +1,341 @@
 package reserva.presentation.Calendario;
 
+import reserva.GeneradorPDF;
 import reserva.data.Data;
 import reserva.logic.Categoria;
+import reserva.logic.Usuario;
 import reserva.logic.Recurso;
 import reserva.logic.Reserva;
-import reserva.logic.Usuario;
-import reserva.presentation.Iconos;
+
+import javax.swing.*;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.JOptionPane;
-import javax.swing.DefaultListCellRenderer;
-import javax.swing.JList;
-import java.awt.Component;
-
-import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.kernel.pdf.PdfWriter;
-import com.itextpdf.layout.Document;
-import com.itextpdf.layout.element.Cell;
-import com.itextpdf.layout.element.Paragraph;
-import com.itextpdf.layout.element.Table;
-
-import java.awt.Desktop;
-import java.io.File;
-
 
 public class CalendarioController {
+
     private final CalendarioRecursosView recursosView;
     private final CalendarioActividadesView actividadesView;
     private final CalendarioModel model;
-    private final TablaModel tableModel;
-    private TablaModel actividadesTableModel;
-
     private final Usuario usuarioActual;
 
-    public CalendarioController(CalendarioRecursosView recursosView, CalendarioActividadesView actividadesView,
-                                CalendarioModel model, TablaModel tableModel, Usuario usuarioActual) {
+    public CalendarioController(
+            CalendarioRecursosView recursosView,
+            CalendarioActividadesView actividadesView,
+            CalendarioModel model,
+            Usuario usuarioActual) {
+
         this.recursosView = recursosView;
         this.actividadesView = actividadesView;
         this.model = model;
-        this.tableModel = tableModel;
-        this.usuarioActual = usuarioActual;
-    }
-
-    public CalendarioController(CalendarioRecursosView recursosView, CalendarioActividadesView actividadesView,
-                                Usuario usuarioActual) {
-
-        this.actividadesTableModel = new TablaModel();
-        this.recursosView = recursosView;
-        this.actividadesView = actividadesView;
-        this.model = new CalendarioModel();
-        this.tableModel = new TablaModel();
         this.usuarioActual = usuarioActual;
 
-        recursosView.getCalendarioRectable().setModel(tableModel);
-        actividadesView.getActividadesSemtable().setModel(actividadesTableModel);
+        recursosView.setController(this);
+        recursosView.setModel(model);
 
-        cargarCategoriasEnCombo();
-        configurarEventos();
+        actividadesView.setController(this);
+        actividadesView.setModel(model);
 
-        cargarHoras();
-        cargarCalendarioActividades();
+        cargarHorasRecursos();
+        cargarCategoriasRecursos();
     }
 
-    private void configurarEventos() {
-        recursosView.getCargarButton().setIcon(Iconos.get("date"));
-        recursosView.getImprimirButton().setIcon(Iconos.get("pdf"));
-        actividadesView.getCargarButton().setIcon(Iconos.get("date"));
-        actividadesView.getImprimirButton().setIcon(Iconos.get("pdf"));
+    public CalendarioController(
+            CalendarioRecursosView recursosView,
+            CalendarioActividadesView actividadesView, Usuario usuarioActual) {
 
-        recursosView.getCargarButton().addActionListener(e -> {cargarCalendarioRecursos();});
-
-        recursosView.getImprimirButton().addActionListener(e -> {generarPDFRecursos();});
-
-        actividadesView.getCargarButton().addActionListener(e -> cargarCalendarioActividades());
-
-        actividadesView.getImprimirButton().addActionListener(e-> generarPDFActividades());
+        this(
+                recursosView,
+                actividadesView,
+                new CalendarioModel(),
+                usuarioActual
+        );
     }
+    public void cargarCategoriasRecursos() {
 
-    @SuppressWarnings("unchecked")
-    private void cargarCategoriasEnCombo() {
         try {
             List<Categoria> categorias = Data.instance().listarCategorias(usuarioActual);
-            for (Categoria c : categorias) {
-                recursosView.getDescripcion_cBox().addItem(c);
-            }
-            recursosView.getDescripcion_cBox().setRenderer(new DefaultListCellRenderer() {
-                @Override
-                public Component getListCellRendererComponent(JList list, Object value, int index,
-                                                              boolean isSelected, boolean cellHasFocus) {
-                    super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                    if (value instanceof Categoria categoria) {
-                        setText(categoria.getDescripcion());
-                    }
-                    return this;
-                }
-            });
+
+            recursosView.cargarCategoriasEnCombo(categorias);
+
         } catch (RuntimeException ex) {
-            JOptionPane.showMessageDialog(null, "No se pudieron cargar las categorías: " + ex.getMessage());
+
+            JOptionPane.showMessageDialog(
+                    null,
+                    ex.getMessage()
+            );
         }
     }
 
-    //Metodos que se utilizan en la calendarizacion de recursos
-    private void cargarHoras() {
+    private void cargarHorasRecursos() {
+
         List<String> columnas = new ArrayList<>();
-
         columnas.add("Hora");
-
-        tableModel.setColumnas(columnas);
 
         List<Object[]> filas = new ArrayList<>();
 
-        for(int hora = 7; hora <= 20; hora++){
+        for (int hora = 7; hora <= 20; hora++) {
+
             Object[] fila = new Object[1];
 
             fila[0] = String.format("%02d:00", hora);
 
             filas.add(fila);
         }
-        tableModel.setFilas(filas);
+
+        model.setColumnasRecursos(columnas);
+        model.setFilasRecursos(filas);
     }
 
+    public void cargarCalendarioRecursos(LocalDate fecha, Categoria categoria) {
 
-    private void cargarCalendarioRecursos() {
-        LocalDate fecha = recursosView.getDatePicker().getDate();
-
-        Object seleccionado = recursosView.getDescripcion_cBox().getSelectedItem();
-
-        if(fecha == null){
+        if (fecha == null) {
             JOptionPane.showMessageDialog(null, "Seleccione una fecha");
+
             return;
         }
 
-        if(!(seleccionado instanceof Categoria categoria)){
+        if (categoria == null) {
             JOptionPane.showMessageDialog(null, "Seleccione una categoria");
+
             return;
         }
 
-        List<Recurso> recursos = Data.instance().buscarRecursosPorCategoria(categoria, usuarioActual);
-        List<Reserva> todasLasReservas = Data.instance().listarReservas();
+        try {
 
-        List<String> columnas = new ArrayList<>();
-        columnas.add("Hora");
-        for (Recurso r : recursos) {
-            columnas.add(r.getId());
-        }
-        tableModel.setColumnas(columnas);
+            List<Recurso> recursos = Data.instance().buscarRecursosPorCategoria(categoria, usuarioActual);
 
-        List<Object[]> filas = new ArrayList<>();
-        for (int hora = 7; hora <= 20; hora++) {
-            Object[] fila = new Object[1 + recursos.size()];
-            fila[0] = String.format("%02d:00", hora);
-            LocalTime horaInicioCelda = LocalTime.of(hora, 0);
-            LocalTime horaFinCelda = horaInicioCelda.plusHours(1);
+            List<Reserva> reservas = Data.instance().listarReservas();
 
-            for (int i = 0; i < recursos.size(); i++) {
-                fila[i + 1] = textoOcupacion(todasLasReservas, recursos.get(i), fecha, horaInicioCelda, horaFinCelda);
-            }
-            filas.add(fila);
-        }
-        tableModel.setFilas(filas);
-    }
+            List<String> columnas = new ArrayList<>();
 
-    /** Si hay una reserva activa de ese recurso que cubre ese rango de hora, arma el texto a mostrar en la celda. */
-    private String textoOcupacion(List<Reserva> reservas, Recurso recurso, LocalDate fecha,
-                                  LocalTime horaInicioCelda, LocalTime horaFinCelda) {
-        for (Reserva r : reservas) {
-            if (!Reserva.ACTIVA.equals(r.getEstado())) continue;
-            if (!fecha.equals(r.getFecha())) continue;
-            boolean tieneEseRecurso = r.getRecursos().stream().anyMatch(x -> x.getId().equals(recurso.getId()));
-            if (!tieneEseRecurso) continue;
+            columnas.add("Hora");
 
-            boolean seCruza = horaInicioCelda.isBefore(r.getHoraFin()) && r.getHoraInicio().isBefore(horaFinCelda);
-            if (seCruza) {
-                String funcionario = (r.getFuncionario() != null) ? r.getFuncionario().getNombre() : "";
-                return r.getActividad() + " - " + funcionario;
-            }
-        }
-        return "";
-    }
-
-    private void generarPDFRecursos() {
-        String destino = "CalendarioRecursos.pdf";
-
-        try{
-            PdfWriter writer = new PdfWriter(destino);
-            PdfDocument pdf = new PdfDocument(writer);
-            Document documento = new Document(pdf);
-
-            documento.add(new Paragraph("\t\t\tCalendario de Recursos"));
-
-            int cantColumnas = recursosView.getCalendarioRectable().getColumnCount();
-
-            Table tablaPDF = new Table(cantColumnas);
-
-            //Encabezados
-            for(int columnas =0; columnas < cantColumnas; columnas++){
-                String nombreColumna = recursosView.getCalendarioRectable().getColumnName(columnas);
-
-                tablaPDF.addHeaderCell(new Cell().add(new Paragraph(nombreColumna)));
+            for (Recurso recurso : recursos) {
+                columnas.add(recurso.getId());
             }
 
-            //filas
-            int cantFilas = recursosView.getCalendarioRectable().getRowCount();
+            List<Object[]> filas = new ArrayList<>();
 
-            for(int fila =0; fila < cantFilas; fila++){
-                for(int columna =0; columna < cantColumnas; columna++){
-                    Object valor = recursosView.getCalendarioRectable().getValueAt(fila, columna);
+            for (int hora = 7; hora <= 20; hora++) {
 
-                    String texto;
+                Object[] fila = new Object[recursos.size() + 1];
 
-                    if(valor == null){
-                        texto = "";
-                    }else{
-                        texto = valor.toString();
+                fila[0] = String.format("%02d:00", hora);
+
+                LocalTime inicio = LocalTime.of(hora, 0);
+
+                LocalTime fin = inicio.plusHours(1);
+
+                for (int i = 0; i < recursos.size(); i++) {
+
+                    Recurso recurso = recursos.get(i);
+
+                    Reserva reserva = buscarReservaRecurso(reservas, recurso, fecha, inicio, fin);
+
+                    if (reserva == null) {
+
+                        fila[i + 1] = "Disponible";
+
+                    } else {
+
+                        String funcionario = "";
+
+                        if (reserva.getFuncionario() != null) {
+
+                            funcionario = reserva.getFuncionario().getNombre();
+                        }
+
+                        fila[i + 1] = reserva.getActividad() + " - " + funcionario;
                     }
-
-                    tablaPDF.addCell(new Cell().add(new Paragraph(texto)));
                 }
+
+                filas.add(fila);
             }
-            documento.add(tablaPDF);
-            documento.close();
 
-            abrirPDF(destino);
+            model.setColumnasRecursos(columnas);
+            model.setFilasRecursos(filas);
 
-        }catch(Exception e){
-            JOptionPane.showMessageDialog(null, "No se genero el PDF: " + e.getMessage());
+        } catch (RuntimeException ex) {
+
+            JOptionPane.showMessageDialog(
+                    null,
+                    ex.getMessage()
+            );
         }
     }
 
-    public CalendarioRecursosView getRecursosView() {
-        return recursosView;
-    }
+    public void cargarCalendarioActividades(LocalDate fecha) {
 
+        if (fecha == null) {
 
-    //Metodos que se utilizan en la calendarizacion de Actividades
-    public void cargarCalendarioActividades(){
-        LocalDate fecha = actividadesView.getDatePickerA().getDate();
-        DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM");
-
-        if(fecha == null){
             JOptionPane.showMessageDialog(null, "Seleccione una fecha");
+
             return;
         }
+
+        DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM");
 
         LocalDate semana = fecha.with(DayOfWeek.MONDAY);
 
         List<String> columnas = new ArrayList<>();
 
         columnas.add("Hora");
+
         columnas.add("Lunes " + semana.format(formato));
+
         columnas.add("Martes " + semana.plusDays(1).format(formato));
+
         columnas.add("Miercoles " + semana.plusDays(2).format(formato));
+
         columnas.add("Jueves " + semana.plusDays(3).format(formato));
+
         columnas.add("Viernes " + semana.plusDays(4).format(formato));
+
         columnas.add("Sabado " + semana.plusDays(5).format(formato));
+
         columnas.add("Domingo " + semana.plusDays(6).format(formato));
 
-        actividadesTableModel.setColumnas(columnas);
-
-        List<Reserva> todasLasReservas = Data.instance().listarReservas();
+        List<Reserva> reservas = Data.instance().listarReservas();
 
         List<Object[]> filas = new ArrayList<>();
 
-        for(int hora = 7; hora <= 20; hora++){
+        for (int hora = 7; hora <= 20; hora++) {
+
             Object[] fila = new Object[8];
 
             fila[0] = String.format("%02d:00", hora);
 
-            LocalTime horaInicioCelda = LocalTime.of(hora, 0);
-            LocalTime horaFinCelda = horaInicioCelda.plusHours(1);
+            LocalTime inicio = LocalTime.of(hora, 0);
+
+            LocalTime fin = inicio.plusHours(1);
 
             for (int dia = 0; dia < 7; dia++) {
-                LocalDate fechaColumna = semana.plusDays(dia);
-                fila[dia + 1] = textoActividad(todasLasReservas, fechaColumna, horaInicioCelda, horaFinCelda);
+
+                LocalDate fechaDia = semana.plusDays(dia);
+
+                fila[dia + 1] = buscarActividades(reservas, fechaDia, inicio, fin);
             }
 
             filas.add(fila);
         }
-        actividadesTableModel.setFilas(filas);
+
+        model.setColumnasActividades(columnas);
+        model.setFilasActividades(filas);
     }
 
-    /** Si hay una reserva activa (de cualquier recurso) en esa fecha y hora, arma el texto a mostrar en la celda. */
-    private String textoActividad(List<Reserva> reservas, LocalDate fecha, LocalTime horaInicioCelda, LocalTime horaFinCelda) {
-        for (Reserva r : reservas) {
-            if (!Reserva.ACTIVA.equals(r.getEstado())) continue;
-            if (!fecha.equals(r.getFecha())) continue;
+    private Reserva buscarReservaRecurso(List<Reserva> reservas, Recurso recurso,
+            LocalDate fecha, LocalTime inicio, LocalTime fin) {
 
-            boolean seCruza = horaInicioCelda.isBefore(r.getHoraFin()) && r.getHoraInicio().isBefore(horaFinCelda);
-            if (seCruza) {
-                String funcionario = (r.getFuncionario() != null) ? r.getFuncionario().getNombre() : "";
-                return r.getActividad() + " (" + funcionario + ")";
-            }
-        }
-        return "";
-    }
+        for (Reserva reserva : reservas) {
 
-    private void generarPDFActividades(){
-
-        String destino = "CalendarioActividades.pdf";
-
-        try{
-
-            PdfWriter writer = new PdfWriter(destino);
-            PdfDocument pdf = new PdfDocument(writer);
-            Document documento = new Document(pdf);
-
-            documento.add(new Paragraph("Calendario de Actividades"));
-
-            int cantColumnas = actividadesView.getActividadesSemtable().getColumnCount();
-
-            Table tablaPDF = new Table(cantColumnas);
-
-            //Encabezado del documento
-            for(int columna =0; columna < cantColumnas; columna++){
-                String nombreColumna = actividadesView.getActividadesSemtable().getColumnName(columna);
-
-                tablaPDF.addHeaderCell(new Cell().add(new Paragraph(nombreColumna)));
+            if (!Reserva.ACTIVA.equals(reserva.getEstado())) {
+                continue;
             }
 
-            //Filas
-            int cantFilas = actividadesView.getActividadesSemtable().getRowCount();
+            if (reserva.getFecha() == null || !reserva.getFecha().equals(fecha)) {
+                continue;
+            }
 
-            for(int fila =0; fila < cantFilas; fila++){
-                for(int columna =0; columna < cantColumnas; columna++){
-                    Object valor = actividadesView.getActividadesSemtable().getValueAt(fila, columna);
+            if (reserva.getRecursos() == null) {
+                continue;
+            }
 
-                    String texto;
+            boolean usaRecurso = false;
 
+            for (Recurso r : reserva.getRecursos()) {
 
-                    if(valor == null){
-                        texto = "";
-                    }else{
-                        texto = valor.toString();
-                    }
-
-                    tablaPDF.addCell(new Cell().add(new Paragraph(texto)));
+                if (r.getId().equals(recurso.getId())) {
+                    usaRecurso = true;
+                    break;
                 }
             }
 
-            documento.add(tablaPDF);
-            documento.close();
+            if (!usaRecurso) {
+                continue;
+            }
 
-            abrirPDF(destino);
-        }catch(Exception e){
-            JOptionPane.showMessageDialog(null, "No se genero el PDF: " + e.getMessage());
+            boolean coincideHorario = inicio.isBefore(reserva.getHoraFin())
+                            && reserva.getHoraInicio().isBefore(fin);
+
+            if (coincideHorario) {
+                return reserva;
+            }
         }
+
+        return null;
     }
 
-    private void abrirPDF(String ruta){
-        try{
-            File archivo = new File(ruta);
+    private String buscarActividades(List<Reserva> reservas,
+            LocalDate fecha, LocalTime inicio, LocalTime fin) {
 
-            if(archivo.exists()){
-                if(Desktop.isDesktopSupported()){
-                    Desktop.getDesktop().open(archivo);
-                }else{
-                    JOptionPane.showMessageDialog(null, "No se puede abrir el PDF automaticamente");
-                }
-            }else{
-                JOptionPane.showMessageDialog(null, "No existe el archivo PDF");
+        List<String> actividades = new ArrayList<>();
+
+        for (Reserva reserva : reservas) {
+
+            if (!Reserva.ACTIVA.equals(reserva.getEstado())) {
+                continue;
             }
-        }catch(Exception e){
-            JOptionPane.showMessageDialog(null, "No se puede abrir el PDF:  " + e.getMessage());
+
+            if (reserva.getFecha() == null || !reserva.getFecha().equals(fecha)) {
+                continue;
+            }
+
+            boolean coincideHorario = inicio.isBefore(reserva.getHoraFin()) &&
+                            reserva.getHoraInicio().isBefore(fin);
+
+            if (!coincideHorario) {
+                continue;
+            }
+
+            String funcionario = "";
+
+            if (reserva.getFuncionario() != null) {
+                funcionario = reserva.getFuncionario().getNombre();
+            }
+
+            actividades.add(reserva.getActividad() + " - " + funcionario);
         }
+
+        if (actividades.isEmpty()) {
+            return "";
+        }
+
+        return String.join(" | ", actividades);
+    }
+
+    public void generarPDFRecursos() {
+
+        LocalDate fecha = recursosView.getDatePicker().getDate();
+
+        String titulo = "Calendario de Recursos";
+
+        if(fecha != null) {
+            DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+            titulo += " - " + fecha.format(formato);
+        }
+
+        GeneradorPDF.generarDesdeTabla(
+                recursosView.getCalendarioRectable(),
+                titulo, "CalendarioRecursos.pdf"
+        );
+    }
+
+    public void generarPDFActividades() {
+
+        GeneradorPDF.generarDesdeTabla(
+                actividadesView.getActividadesSemtable(),
+                "Calendario de Actividades",
+                "CalendarioActividades.pdf"
+        );
+    }
+
+    public CalendarioRecursosView getRecursosView() {
+        return recursosView;
     }
 
     public CalendarioActividadesView getActividadesView() {
@@ -376,10 +345,4 @@ public class CalendarioController {
     public CalendarioModel getModel() {
         return model;
     }
-
-    public TablaModel getTableModel() {
-        return tableModel;
-    }
-
-
 }

@@ -1,14 +1,14 @@
-package reserva.presentation.Calendario;
+package reserva.presentation.Estadisticas;
 
 import javax.swing.table.AbstractTableModel;
 import java.util.List;
 
-public class TableModel extends AbstractTableModel {
+public class TablaModel extends AbstractTableModel {
 
-    private final List<String> columnas;
+    private final String[] columnas;
     private final List<Object[]> filas;
 
-    public TableModel(List<String> columnas, List<Object[]> filas) {
+    public TablaModel(String[] columnas, List<Object[]> filas) {
         this.columnas = columnas;
         this.filas = filas;
     }
@@ -20,12 +20,12 @@ public class TableModel extends AbstractTableModel {
 
     @Override
     public int getColumnCount() {
-        return columnas.size();
+        return columnas.length;
     }
 
     @Override
     public String getColumnName(int columna) {
-        return columnas.get(columna);
+        return columnas[columna];
     }
 
     @Override

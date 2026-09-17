@@ -1,5 +1,7 @@
 package reserva;
 
+import com.itextpdf.kernel.colors.DeviceRgb;
+import com.itextpdf.kernel.colors.ColorConstants;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
@@ -13,13 +15,21 @@ import java.io.File;
 
 public class GeneradorPDF {
 
+    // Mismo azul para el título y para el fondo de los encabezados, así los PDF quedan consistentes entre sí.
+    private static final DeviceRgb AZUL = new DeviceRgb(41, 98, 176);
+
     public static void generarDesdeTabla(JTable tabla, String titulo, String nombreArchivo){
         try{
             PdfWriter writer = new PdfWriter(nombreArchivo);
             PdfDocument pdf = new PdfDocument(writer);
             Document documento = new Document(pdf);
 
-            documento.add(new Paragraph(titulo));
+            Paragraph tituloParrafo = new Paragraph(titulo)
+                    .setFontColor(AZUL)
+                    .setBold()
+                    .setFontSize(16);
+
+            documento.add(tituloParrafo);
 
             int cantColumnas = tabla.getColumnCount();
 
@@ -29,7 +39,13 @@ public class GeneradorPDF {
             for(int columnas = 0; columnas < cantColumnas; columnas++){
                 String nombreColumna = tabla.getColumnName(columnas);
 
-                tablaPDF.addHeaderCell(new Cell().add(new Paragraph(nombreColumna)));
+                Cell celdaEncabezado = new Cell()
+                        .add(new Paragraph(nombreColumna))
+                        .setBackgroundColor(AZUL)
+                        .setFontColor(ColorConstants.WHITE)
+                        .setBold();
+
+                tablaPDF.addHeaderCell(celdaEncabezado);
             }
 
             //Datos que van en el pdf

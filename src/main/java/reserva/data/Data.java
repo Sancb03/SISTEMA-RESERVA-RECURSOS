@@ -484,11 +484,6 @@ public class Data {
         return resultado;
     }
 
-    /**
-     * ¿Ese recurso ya tiene una reserva ACTIVA que se cruza con el horario pedido,
-     * en esa misma fecha? 'excluirReservaId' se usa al recalcular una reserva
-     * para no chocar consigo misma (puede ser null).
-     */
     public boolean existeSolape(Recurso recurso, LocalDate fecha, LocalTime horaInicio, LocalTime horaFin, String excluirReservaId) {
         for (Reserva r : reservas) {
             if (excluirReservaId != null && excluirReservaId.equals(r.getId())) {

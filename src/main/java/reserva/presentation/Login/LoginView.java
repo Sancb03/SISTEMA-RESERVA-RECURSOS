@@ -15,7 +15,7 @@ public class LoginView extends JFrame implements PropertyChangeListener {
 
     // Componentes creados por el .form (IntelliJ GUI Designer) - no se instancian a mano,
     // el diseñador los llena en tiempo de compilación a partir de LoginView.form
-    private JPanel panel1;
+    private JPanel Login_panel;
     private JLabel logoLabel;
     private JLabel idLabel;
     private JLabel claveLabel;
@@ -33,7 +33,7 @@ public class LoginView extends JFrame implements PropertyChangeListener {
 
     public LoginView() {
         setTitle("Sistema de Reserva de Recursos - Ingreso");
-        setContentPane(panel1);
+        setContentPane(Login_panel);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         pack();
         setLocationRelativeTo(null);
@@ -71,7 +71,7 @@ public class LoginView extends JFrame implements PropertyChangeListener {
             );
 
             Usuario usuario = model.getUsuarioAutenticado();
-            JOptionPane.showMessageDialog(panel1, "Bienvenido, " + usuario.getNombre());
+            JOptionPane.showMessageDialog(Login_panel, "Bienvenido, " + usuario.getNombre());
 
             new TabsView(usuario).setVisible(true);
             dispose();
@@ -79,7 +79,7 @@ public class LoginView extends JFrame implements PropertyChangeListener {
         } catch (Exception ex) {
 
             JOptionPane.showMessageDialog(
-                    panel1,
+                    Login_panel,
                     ex.getMessage(),
                     "Error de autenticación",
                     JOptionPane.ERROR_MESSAGE
@@ -93,7 +93,7 @@ public class LoginView extends JFrame implements PropertyChangeListener {
     }
 
     public JPanel getPanel() {
-        return panel1;
+        return Login_panel;
     }
 
     @Override

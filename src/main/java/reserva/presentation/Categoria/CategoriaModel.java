@@ -1,39 +1,39 @@
-package reserva.presentation.Funcionarios;
+package reserva.presentation.Categoria;
 
-import reserva.logic.Funcionario;
+import reserva.logic.Categoria;
 import reserva.AbstractModel;
 
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FuncionariosModel extends AbstractModel {
+public class CategoriaModel extends AbstractModel {
 
-    private Funcionario current;
-    private List<Funcionario> listado;
+    private Categoria current;
+    private List<Categoria> listado;
 
     public static final String CURRENT = "current";
     public static final String LIST = "list";
 
-    public FuncionariosModel() {
-        current = new Funcionario();
+    public CategoriaModel() {
+        current = new Categoria();
         listado = new ArrayList<>();
     }
 
-    public Funcionario getCurrent() {
+    public Categoria getCurrent() {
         return current;
     }
 
-    public void setCurrent(Funcionario current) {
+    public void setCurrent(Categoria current) {
         this.current = current;
         firePropertyChange(CURRENT);
     }
 
-    public List<Funcionario> getListado() {
+    public List<Categoria> getListado() {
         return listado;
     }
 
-    public void setListado(List<Funcionario> listado) {
+    public void setListado(List<Categoria> listado) {
         this.listado = listado;
         firePropertyChange(LIST);
     }

@@ -8,7 +8,7 @@ import java.awt.event.ActionEvent;
 public class CambiarClaveView extends JFrame {
 
     // Componentes creados por el .form (IntelliJ GUI Designer)
-    private JPanel panel1;
+    private JPanel cambiarClave_Panel;
     private JLabel claveActualLabel;
     private JLabel claveNuevaLabel;
     private JLabel claveConfirmarLabel;
@@ -27,7 +27,7 @@ public class CambiarClaveView extends JFrame {
 
     public CambiarClaveView() {
         setTitle("Cambiar Clave");
-        setContentPane(panel1);
+        setContentPane(cambiarClave_Panel);
         setSize(420, 260);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -69,11 +69,11 @@ public class CambiarClaveView extends JFrame {
                     new String(claveNueva_pField.getPassword()),
                     new String(claveConfirmar_pField.getPassword())
             );
-            JOptionPane.showMessageDialog(panel1, "Clave actualizada correctamente.");
+            JOptionPane.showMessageDialog(cambiarClave_Panel, "Clave actualizada correctamente.");
             limpiar();
             dispose();
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(panel1, ex.getMessage(),
+            JOptionPane.showMessageDialog(cambiarClave_Panel, ex.getMessage(),
                     "No se pudo cambiar la clave", JOptionPane.ERROR_MESSAGE);
         }
     }

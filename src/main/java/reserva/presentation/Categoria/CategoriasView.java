@@ -1,10 +1,14 @@
 package reserva.presentation.Categoria;
 
+import reserva.logic.Categoria;
 import reserva.logic.Usuario;
 
 import javax.swing.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
-public class CategoriasView {
+public class CategoriasView implements PropertyChangeListener {
+
     private JTextField Descripcion_tField;
     private JButton buscarButton;
     private JButton imprimirButton;
@@ -20,25 +24,129 @@ public class CategoriasView {
     private JLabel idLabel;
     private JLabel descripcionLabel;
     private JScrollPane ListadoScroll;
+    private JPanel Categoria_panel;
 
     private CategoriaModel model;
     private CategoriaController controller;
-    private TablaModel tableModel;
 
     public CategoriasView(Usuario usuarioActual) {
 
         model = new CategoriaModel();
-        tableModel = new TablaModel();
 
-        controller = new CategoriaController(this, model, tableModel,usuarioActual);
+        controller = new CategoriaController(
+                this,
+                model,
+                usuarioActual
+        );
 
-        Categoriatable.setModel(tableModel);
+        buscarButton.addActionListener(e ->
+                controller.buscar()
+        );
+
+        guardarButton.addActionListener(e ->
+                controller.guardar(take())
+        );
+
+        borrarButton.addActionListener(e ->
+                controller.borrar()
+        );
+
+        limpiarButton.addActionListener(e ->
+                controller.limpiar()
+        );
+
+        imprimirButton.addActionListener(e ->
+                controller.generarPDF()
+        );
+
+        Categoriatable.getSelectionModel()
+                .addListSelectionListener(e -> {
+
+                    if (!e.getValueIsAdjusting()) {
+                        controller.seleccionarCategoria(
+                                Categoriatable.getSelectedRow()
+                        );
+                    }
+                });
+        id_tField.setEnabled(false);
     }
 
+    public Categoria take() {
+
+        Categoria c = new Categoria();
+
+        c.setId(
+                id_tField.getText().trim()
+        );
+
+        c.setDescripcion(
+                descripcion_tField.getText().trim()
+        );
+
+        return c;
+    }
+
+    public void setController(CategoriaController controller) {
+        this.controller = controller;
+    }
+
+    public void setModel(CategoriaModel model) {
+        this.model = model;
+        model.addPropertyChangeListener(this);
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+
+        switch (evt.getPropertyName()) {
+
+            case CategoriaModel.LIST:
+
+                int[] cols = {
+                        TablaModel.ID,
+                        TablaModel.DESCRIPCION
+                };
+
+                Categoriatable.setModel(
+                        new TablaModel(
+                                cols,
+                                model.getListado()
+                        )
+                );
+
+                break;
+
+            case CategoriaModel.CURRENT:
+
+                Categoria actual = model.getCurrent();
+
+                if (actual != null) {
+
+                    id_tField.setText(
+                            actual.getId() == null
+                                    ? ""
+                                    : actual.getId()
+                    );
+
+                    descripcion_tField.setText(
+                            actual.getDescripcion() == null
+                                    ? ""
+                                    : actual.getDescripcion()
+                    );
+                }
+
+                break;
+        }
+
+        CategoriaPanel.revalidate();
+        CategoriaPanel.repaint();
+    }
 
     public JPanel getCategoriaPanel() {
         return CategoriaPanel;
     }
+
+    public JPanel getPanelPrincipal() { return Categoria_panel; }
 
     public JTextField getDescripcionBusquedaTField() {
         return Descripcion_tField;
@@ -82,9 +190,5 @@ public class CategoriasView {
 
     public CategoriaController getController() {
         return controller;
-    }
-
-    public TablaModel getTableModel() {
-        return tableModel;
     }
 }
