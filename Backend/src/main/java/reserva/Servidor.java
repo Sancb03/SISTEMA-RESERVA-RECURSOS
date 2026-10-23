@@ -15,14 +15,6 @@ import java.net.SocketException;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * El Backend: un proceso SIN interfaz gráfica que escucha en un puerto.
- * Por cada Frontend que se conecta crea un hilo (ManejadorCliente) que
- * atiende sus peticiones, y cuando alguien crea una reserva les avisa a los
- * demás por el canal de alertas.
- *
- * Se arranca con:  java -jar RESERVA-BACKEND.jar [puerto]   (por defecto 5000)
- */
 public class Servidor {
 
     private final int puertoSolicitado;

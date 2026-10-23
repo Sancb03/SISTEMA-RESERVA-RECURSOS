@@ -13,11 +13,6 @@ import java.beans.PropertyChangeListener;
 import java.time.format.DateTimeFormatter;
 import java.util.stream.Collectors;
 
-/**
- * Panel de Alertas: va a la derecha de la pantalla principal, independiente de
- * la pestaña que esté abierta. "Ver" abre el detalle de la reserva y "Desc."
- * pide confirmación y quita la alerta de esta pantalla (solo local).
- */
 public class AlertasView implements PropertyChangeListener {
 
     private static final DateTimeFormatter FECHA = DateTimeFormatter.ofPattern("dd/MM/yyyy");

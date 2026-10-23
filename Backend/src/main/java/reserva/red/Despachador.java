@@ -6,17 +6,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Set;
 
-/**
- * Recibe una Peticion y la convierte en una llamada real al Service:
- * busca en la interfaz Service el método con el nombre de la Peticion,
- * lo invoca por reflexión con los parámetros que vinieron y empaca el
- * resultado (o el error) en una Respuesta.
- *
- * Gracias a esto el protocolo NO cambia cuando se agrega un método a
- * Service: basta con ponerlo en la interfaz, en ServiceImpl y en
- * ServiceProxy. Y como solo se buscan métodos de la interfaz Service,
- * un Frontend no puede pedirle al Backend que ejecute cualquier otra cosa.
- */
+
 public class Despachador {
 
     /** Excepciones que sí se le avisan al Frontend con su tipo exacto. */

@@ -8,13 +8,6 @@ import java.net.Socket;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-/**
- * Lista (segura para varios hilos) de los Frontend que están conectados por
- * el canal de ALERTAS. Cada vez que alguien crea una reserva, el Servidor le
- * pide a este registro que la "difunda": se le manda una Notificacion a todos
- * los Frontend conectados, MENOS a los del propio usuario que la creó (el
- * enunciado dice "a todos los demás").
- */
 public class RegistroAlertas {
 
     private record Suscriptor(Socket socket, ObjectOutputStream salida, int usuarioId) {

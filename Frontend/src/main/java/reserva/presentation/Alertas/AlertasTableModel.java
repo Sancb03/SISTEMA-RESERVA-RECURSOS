@@ -7,7 +7,6 @@ import reserva.presentation.Iconos;
 import javax.swing.Icon;
 import java.util.List;
 
-/** Columnas de la tabla de alertas: Actividad | Ver | Desc. (descartar). */
 public class AlertasTableModel extends AbstractTableModel<Reserva> {
 
     public static final int ACTIVIDAD = 0;

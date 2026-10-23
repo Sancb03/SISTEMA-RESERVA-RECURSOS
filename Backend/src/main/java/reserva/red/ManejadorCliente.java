@@ -8,19 +8,8 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.SocketException;
 
-/**
- * Un hilo por cada conexión que llega al Servidor. Lo primero que manda el
- * Frontend es para qué es la conexión (ver Protocolo):
- *
- *  - PETICIONES: ciclo "leo una Peticion -> la ejecuto con el Despachador ->
- *                escribo la Respuesta", hasta que el Frontend cierre.
- *  - ALERTAS:    el Frontend dice quién es (su id de usuario), se registra en
- *                RegistroAlertas, y este hilo solo se queda esperando a que la
- *                conexión se cierre. Las Notificacion las escribe el registro.
- */
 public class ManejadorCliente implements Runnable {
 
-    /** Solo se aceptan objetos de nuestro propio paquete y de java.lang/util/time. */
     private static final ObjectInputFilter FILTRO = ObjectInputFilter.Config.createFilter(
             "reserva.**;java.lang.*;java.util.*;java.time.*;!*");
 

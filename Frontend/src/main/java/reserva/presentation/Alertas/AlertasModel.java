@@ -6,11 +6,7 @@ import reserva.logic.Reserva;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Las alertas que tiene el usuario en pantalla: una por cada reserva nueva que
- * hizo OTRO funcionario mientras esta sesión estaba abierta. Vive solo en
- * memoria del Frontend (descartar una alerta no toca el Backend ni la base de datos).
- */
+
 public class AlertasModel extends AbstractModel {
 
     public static final String ALERTAS = "alertas";
