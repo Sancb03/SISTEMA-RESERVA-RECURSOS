@@ -6,9 +6,11 @@ import java.io.Serializable;
  * Ya NO lleva anotaciones JAXB: en el Proyecto 2 la persistencia la hace
  * el Backend contra MySQL (ver reserva.data.UsuarioDao allá), no XML.
  * Ahora es Serializable porque estos objetos viajan por el socket dentro
- * de una Peticion/Respuesta.
+ * de una respuesta del Protocol.
  */
 public abstract class Usuario implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private int id;
     private String identificacion;
     private String nombre;

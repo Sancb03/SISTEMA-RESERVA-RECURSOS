@@ -2,7 +2,6 @@ package reserva.presentation.Categoria;
 
 import reserva.GeneradorPDF;
 import reserva.logic.Service;
-import reserva.logic.ServiceProxy;
 import reserva.logic.Administrador;
 import reserva.logic.Categoria;
 import reserva.logic.Usuario;
@@ -25,7 +24,7 @@ public class CategoriaController {
 
         this.view = view;
         this.model = model;
-        this.service = ServiceProxy.instance();
+        this.service = Service.instance();
         this.usuarioActual = usuarioActual;
 
         view.setController(this);

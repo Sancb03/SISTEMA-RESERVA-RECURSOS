@@ -1,16 +1,21 @@
 package reserva;
 
+import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.kernel.colors.DeviceRgb;
 import com.itextpdf.kernel.colors.ColorConstants;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Cell;
+import com.itextpdf.layout.element.Image;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
 
 import javax.swing.*;
 import java.awt.*;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 
 public class GeneradorPDF {
@@ -19,6 +24,11 @@ public class GeneradorPDF {
     private static final DeviceRgb AZUL = new DeviceRgb(41, 98, 176);
 
     public static void generarDesdeTabla(JTable tabla, String titulo, String nombreArchivo){
+        generarDesdeTablaConGrafico(tabla, null, titulo, nombreArchivo);
+    }
+
+    /** Igual que generarDesdeTabla, pero si viene una imagen (el grafico) la agrega debajo de la tabla. */
+    public static void generarDesdeTablaConGrafico(JTable tabla, BufferedImage grafico, String titulo, String nombreArchivo){
         try{
             PdfWriter writer = new PdfWriter(nombreArchivo);
             PdfDocument pdf = new PdfDocument(writer);
@@ -68,6 +78,16 @@ public class GeneradorPDF {
                 }
             }
             documento.add(tablaPDF);
+
+            if(grafico != null){
+                ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+                ImageIO.write(grafico, "png", bytes);
+
+                Image imagen = new Image(ImageDataFactory.create(bytes.toByteArray()));
+                imagen.setAutoScale(true);
+                documento.add(imagen);
+            }
+
             documento.close();
 
             abrirPDF(nombreArchivo);

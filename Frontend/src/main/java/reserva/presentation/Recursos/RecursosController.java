@@ -2,7 +2,6 @@ package reserva.presentation.Recursos;
 
 import reserva.GeneradorPDF;
 import reserva.logic.Service;
-import reserva.logic.ServiceProxy;
 import reserva.logic.Administrador;
 import reserva.logic.Categoria;
 import reserva.logic.Recurso;
@@ -30,7 +29,7 @@ public class RecursosController {
         this.view = view;
         this.model = model;
         this.usuarioActual = usuarioActual;
-        this.service = ServiceProxy.instance();
+        this.service = Service.instance();
 
         this.categorias = new ArrayList<>();
 

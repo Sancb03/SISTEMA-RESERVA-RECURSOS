@@ -48,7 +48,16 @@ public class FuncionariosView implements PropertyChangeListener {
         buscarButton.addActionListener(e -> controller.buscar());
 
         guardarButton.addActionListener(e -> {
-            Funcionario f = take();
+            Funcionario f;
+            try {
+                f = take();
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(
+                        getPanel1(),
+                        "El id es obligatorio y debe ser un número entero."
+                );
+                return;
+            }
             controller.guardar(f);
         });
 

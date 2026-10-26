@@ -1,6 +1,8 @@
 package reserva.logic;
 
 public class Funcionario extends Usuario {
+    private static final long serialVersionUID = 1L;
+
     private String telefono;
 
     public Funcionario() {

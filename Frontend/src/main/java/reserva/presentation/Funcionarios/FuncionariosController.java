@@ -2,7 +2,6 @@ package reserva.presentation.Funcionarios;
 
 import reserva.GeneradorPDF;
 import reserva.logic.Service;
-import reserva.logic.ServiceProxy;
 import reserva.logic.Funcionario;
 import reserva.logic.Usuario;
 import reserva.presentation.Iconos;
@@ -25,7 +24,7 @@ public class FuncionariosController {
 
         this.view = view;
         this.model = model;
-        this.service = ServiceProxy.instance();
+        this.service = Service.instance();
         this.usuarioActual = usuarioActual;
 
         view.setController(this);
@@ -122,6 +121,27 @@ public class FuncionariosController {
                 JOptionPane.showMessageDialog(
                         view.getPanel1(),
                         "El nombre es obligatorio."
+                );
+
+                return;
+            }
+
+            if (f.getId() <= 0) {
+
+                JOptionPane.showMessageDialog(
+                        view.getPanel1(),
+                        "El id debe ser mayor que cero."
+                );
+
+                return;
+            }
+
+            if (f.getTelefono() == null ||
+                    !f.getTelefono().matches("[0-9][0-9 +\\-]*")) {
+
+                JOptionPane.showMessageDialog(
+                        view.getPanel1(),
+                        "El teléfono es obligatorio y solo puede llevar números, espacios, + o -."
                 );
 
                 return;

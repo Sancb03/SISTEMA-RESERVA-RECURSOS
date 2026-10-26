@@ -1,9 +1,11 @@
-import reserva.logic.ServiceProxy;
+package reserva;
+
+import reserva.logic.Service;
 import reserva.presentation.Login.LoginView;
 
 import javax.swing.*;
 
-public class main {
+public class Application {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
@@ -31,7 +33,7 @@ public class main {
      * y, si no se puede, se explica dónde se buscó y se deja reintentar.
      */
     private static boolean conectarAlBackend() {
-        ServiceProxy proxy = ServiceProxy.instance();
+        Service proxy = Service.instance();
         while (true) {
             try {
                 proxy.conectar();
@@ -39,8 +41,8 @@ public class main {
             } catch (java.io.IOException ex) {
                 Object[] opciones = {"Reintentar", "Salir"};
                 int eleccion = JOptionPane.showOptionDialog(null,
-                        "No se pudo conectar con el servidor en " + proxy.getHost() + ":" + proxy.getPuerto()
-                                + ".\nVerifique que el Backend (reserva.Servidor) esté corriendo.",
+                        "No se pudo conectar con el servidor en " + proxy.getHost() + ":" + proxy.getPort()
+                                + ".\nVerifique que el Backend (reserva.Application) esté corriendo.",
                         "Sin conexión", JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE,
                         null, opciones, opciones[0]);
                 if (eleccion != 0) {

@@ -1,7 +1,6 @@
 package reserva.presentation.Login.CambiarClave;
 
 import reserva.logic.Service;
-import reserva.logic.ServiceProxy;
 import reserva.logic.Usuario;
 
 class CambiarClaveController {
@@ -17,7 +16,7 @@ class CambiarClaveController {
     CambiarClaveController(CambiarClaveView view, CambiarClaveModel model) {
         this.view = view;
         this.model = model;
-        this.service = ServiceProxy.instance();
+        this.service = Service.instance();
     }
 
     CambiarClaveView getView() {
@@ -43,17 +42,12 @@ class CambiarClaveController {
             throw new Exception("La confirmación no coincide con la nueva clave.");
         }
 
-        Usuario usuario = service.buscarUsuarioPorIdentificacion(identificacion.trim());
-        if (usuario == null) {
-            throw new Exception("No se encontró un usuario con esa identificación.");
-        }
-        if (!usuario.getClave().equals(claveActual)) {
-            throw new Exception("La clave actual no coincide.");
-        }
-
-        usuario.setClave(claveNueva);
-        if (!service.actualizarUsuario(usuario)) {
-            throw new Exception("No se pudo actualizar la clave del usuario.");
+        try {
+            if (!service.cambiarClave(identificacion.trim(), claveActual, claveNueva)) {
+                throw new Exception("No se pudo actualizar la clave del usuario.");
+            }
+        } catch (RuntimeException ex) {
+            throw new Exception(ex.getMessage());
         }
     }
 }

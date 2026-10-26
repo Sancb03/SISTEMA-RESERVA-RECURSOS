@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Pom "agregador": solo sirve para abrir/construir los dos módulos juntos (mvn verify en esta carpeta). -->
+<!-- Pom "agregador": solo sirve para abrir/construir los tres módulos juntos (Protocol, Backend, Frontend) (mvn verify en esta carpeta). -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -11,6 +11,7 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>Protocol</module>
         <module>Backend</module>
         <module>Frontend</module>
     </modules>

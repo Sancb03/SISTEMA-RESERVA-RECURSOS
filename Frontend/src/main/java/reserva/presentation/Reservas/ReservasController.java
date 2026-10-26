@@ -1,6 +1,6 @@
 package reserva.presentation.Reservas;
 
-import reserva.logic.ServiceProxy;
+import reserva.logic.Service;
 import reserva.logic.Categoria;
 import reserva.logic.Recurso;
 import reserva.logic.Reserva;
@@ -58,7 +58,7 @@ public class ReservasController {
     public void cargarCategorias() throws Exception {
 
         model.setCategorias(
-                ServiceProxy.instance().listarCategorias(
+                Service.instance().listarCategorias(
                         usuarioActual()
                 )
         );
@@ -69,7 +69,7 @@ public class ReservasController {
         Usuario usuario = usuarioActual();
 
         List<Reserva> reservas =
-                ServiceProxy.instance()
+                Service.instance()
                         .listarReservasPorFuncionario(
                                 usuario.getId()
                         );
@@ -127,7 +127,7 @@ public class ReservasController {
         }
 
         List<Recurso> todosLosRecursos =
-                ServiceProxy.instance().listarRecursos(
+                Service.instance().listarRecursos(
                         usuario
                 );
 
@@ -164,7 +164,7 @@ public class ReservasController {
             if (elegidoParaEstaCategoria != null) {
 
                 boolean sigueLibre =
-                        !ServiceProxy.instance()
+                        !Service.instance()
                                 .existeSolape(
                                         elegidoParaEstaCategoria,
                                         fecha,
@@ -246,7 +246,7 @@ public class ReservasController {
                 recursosAsignados
         );
 
-        ServiceProxy.instance()
+        Service.instance()
                 .guardarReserva(
                         reserva
                 );
@@ -265,7 +265,7 @@ public class ReservasController {
                 usuarioActual();
 
         List<Recurso> todosLosRecursos =
-                ServiceProxy.instance()
+                Service.instance()
                         .listarRecursos(
                                 usuario
                         );
@@ -293,7 +293,7 @@ public class ReservasController {
                 }
 
                 boolean ocupado =
-                        ServiceProxy.instance()
+                        Service.instance()
                                 .existeSolape(
                                         recurso,
                                         fecha,
@@ -335,7 +335,7 @@ public class ReservasController {
             }
 
             boolean ocupado =
-                    ServiceProxy.instance()
+                    Service.instance()
                             .existeSolape(
                                     recurso,
                                     fecha,
@@ -360,7 +360,7 @@ public class ReservasController {
                 usuarioActual();
 
         Reserva reserva =
-                ServiceProxy.instance()
+                Service.instance()
                         .buscarReservaPorId(
                                 reservaId
                         );
@@ -408,7 +408,7 @@ public class ReservasController {
                 Reserva.CANCELADA
         );
 
-        ServiceProxy.instance()
+        Service.instance()
                 .actualizarReserva(
                         reserva
                 );

@@ -82,13 +82,12 @@ class AlertasTest {
     }
 
     @Test
-    @DisplayName("El listener (hilo del socket) pasa por el hilo de Swing antes de tocar el Model")
-    void nuevaReservaEntraPorElHiloDeSwing() throws InvocationTargetException, InterruptedException {
+    @DisplayName("deliver_reserva (lo llama el SocketMonitor dentro del hilo de Swing) agrega la alerta al Model")
+    void deliverReservaAgregaAlModel() throws InvocationTargetException, InterruptedException {
         List<Boolean> enHiloSwing = new ArrayList<>();
         model.addPropertyChangeListener(e -> enHiloSwing.add(SwingUtilities.isEventDispatchThread()));
 
-        controller.nuevaReserva(reserva("Desde el socket", "Juan"));
-        SwingUtilities.invokeAndWait(() -> { }); // espera a que se procese lo que quedó en la cola de Swing
+        SwingUtilities.invokeAndWait(() -> controller.deliver_reserva(reserva("Desde el socket", "Juan")));
 
         assertEquals(1, model.getAlertas().size());
         assertEquals(List.of(true), enHiloSwing);

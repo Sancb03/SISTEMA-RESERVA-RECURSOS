@@ -1,7 +1,7 @@
 package reserva.presentation.Calendario;
 
 import reserva.GeneradorPDF;
-import reserva.logic.ServiceProxy;
+import reserva.logic.Service;
 import reserva.logic.Categoria;
 import reserva.logic.Usuario;
 import reserva.logic.Recurso;
@@ -57,7 +57,7 @@ public class CalendarioController {
     public void cargarCategoriasRecursos() {
 
         try {
-            List<Categoria> categorias = ServiceProxy.instance().listarCategorias(usuarioActual);
+            List<Categoria> categorias = Service.instance().listarCategorias(usuarioActual);
 
             recursosView.cargarCategoriasEnCombo(categorias);
 
@@ -106,9 +106,9 @@ public class CalendarioController {
 
         try {
 
-            List<Recurso> recursos = ServiceProxy.instance().buscarRecursosPorCategoria(categoria, usuarioActual);
+            List<Recurso> recursos = Service.instance().buscarRecursosPorCategoria(categoria, usuarioActual);
 
-            List<Reserva> reservas = ServiceProxy.instance().listarReservas();
+            List<Reserva> reservas = Service.instance().listarReservas();
 
             List<String> columnas = new ArrayList<>();
 
@@ -199,7 +199,7 @@ public class CalendarioController {
 
         columnas.add("Domingo " + semana.plusDays(6).format(formato));
 
-        List<Reserva> reservas = ServiceProxy.instance().listarReservas();
+        List<Reserva> reservas = Service.instance().listarReservas();
 
         List<Object[]> filas = new ArrayList<>();
 

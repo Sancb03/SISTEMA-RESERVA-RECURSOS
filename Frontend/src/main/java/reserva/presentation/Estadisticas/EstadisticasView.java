@@ -26,6 +26,8 @@ public class EstadisticasView implements PropertyChangeListener {
     private DatePicker DPRecursosFin;
     private DatePicker DPActividadesInicio;
     private DatePicker DPActividadesFin;
+    private JButton pdfRecButton;
+    private JButton pdfActButton;
     private JPanel Estadisticas_panel;
 
     private EstadisticasController controller;
@@ -48,6 +50,10 @@ public class EstadisticasView implements PropertyChangeListener {
                     DPActividadesFin.getDate()
             );
         });
+
+        pdfRecButton.addActionListener(e -> controller.generarPDFRecursos());
+
+        pdfActButton.addActionListener(e -> controller.generarPDFActividades());
     }
 
     public void setController(EstadisticasController controller) {
@@ -117,6 +123,14 @@ public class EstadisticasView implements PropertyChangeListener {
 
     public JButton getCargarActButton() {
         return CargarActButton;
+    }
+
+    public JButton getPdfRecButton() {
+        return pdfRecButton;
+    }
+
+    public JButton getPdfActButton() {
+        return pdfActButton;
     }
 
     public JTable getEstadisticasRectable() {

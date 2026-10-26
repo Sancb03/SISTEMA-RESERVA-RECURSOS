@@ -16,11 +16,21 @@ import java.util.Map;
 import java.util.LinkedHashMap;
 
 import reserva.logic.*;
+import reserva.GeneradorPDF;
+import reserva.presentation.Iconos;
 
 public class EstadisticasController {
 
     private final EstadisticasView view;
     private final EstadisticasModel model;
+
+    // ultimos graficos y rangos mostrados, para poder meterlos en el PDF
+    private JFreeChart graficoRecursos;
+    private JFreeChart graficoActividades;
+    private LocalDate rangoRecInicio;
+    private LocalDate rangoRecFin;
+    private LocalDate rangoActInicio;
+    private LocalDate rangoActFin;
 
     public EstadisticasController(EstadisticasView view) {
         this(
@@ -38,6 +48,9 @@ public class EstadisticasController {
 
         view.setController(this);
         view.setModel(model);
+
+        view.getPdfRecButton().setIcon(Iconos.get("pdf"));
+        view.getPdfActButton().setIcon(Iconos.get("pdf"));
     }
 
     public void cargarEstadisticasRecursos(
@@ -61,47 +74,17 @@ public class EstadisticasController {
         }
 
         cargarCategoriasRecursos(inicio, fin);
+        rangoRecInicio = inicio;
+        rangoRecFin = fin;
 
         generarGraficoRecursos();
     }
 
     private void cargarCategoriasRecursos(LocalDate inicio, LocalDate fin) {
 
-        List<Reserva> reservas = ServiceProxy.instance().listarReservas();
+        List<Reserva> reservas = Service.instance().listarReservas();
 
-        Map<String, Integer> cantidades = new LinkedHashMap<>();
-
-        for(Reserva reserva : reservas) {
-            if(reserva.getFecha() == null){
-                continue;
-            }
-
-            if(reserva.getFecha().isBefore(inicio) || reserva.getFecha().isAfter(fin)){
-                continue;
-            }
-
-            if(!Reserva.ACTIVA.equals(reserva.getEstado())){
-                continue;
-            }
-
-            for(Recurso recurso : reserva.getRecursos()){
-                if(recurso.getCategoria() == null){
-                    continue;
-                }
-
-                String categoria = recurso.getCategoria().getDescripcion();
-
-                cantidades.put(categoria, cantidades.getOrDefault(categoria, 0) + 1);
-            }
-        }
-
-        List<Object[]> filas = new ArrayList<>();
-
-        for(Map.Entry<String, Integer> dato : cantidades.entrySet()) {
-            filas.add(new Object[]{dato.getKey(), dato.getValue()});
-        }
-
-        model.setRecursos(filas);
+        model.setRecursos(EstadisticasCalculo.recursosPorCategoria(reservas, inicio, fin));
     }
 
     public void cargarEstadisticasActividades(
@@ -125,57 +108,17 @@ public class EstadisticasController {
         }
 
         cargarSemanas(inicio, fin);
+        rangoActInicio = inicio;
+        rangoActFin = fin;
 
         generarGraficoActividades();
     }
 
     private void cargarSemanas(LocalDate inicio, LocalDate fin) {
 
-        List<Reserva> reservas = ServiceProxy.instance().listarReservas();
+        List<Reserva> reservas = Service.instance().listarReservas();
 
-        List<Object[]> filas = new ArrayList<>();
-
-        DateTimeFormatter formato =
-                DateTimeFormatter.ofPattern("dd/MM/yyyy");
-
-        LocalDate lunes =
-                inicio.with(DayOfWeek.MONDAY);
-
-        while (!lunes.isAfter(fin)) {
-
-            LocalDate domingo =
-                    lunes.plusDays(6);
-
-            int cantidad = 0;
-
-            for(Reserva reserva : reservas) {
-                if(reserva.getFecha() == null){
-                    continue;
-                }
-
-                if(!Reserva.ACTIVA.equals(reserva.getEstado())){
-                    continue;
-                }
-
-                LocalDate fechaReserva = reserva.getFecha();
-
-                boolean dentroDelRangoSleccionado = !fechaReserva.isBefore(inicio) && !fechaReserva.isAfter(fin);
-
-                boolean dentroDeLaSemana = !fechaReserva.isBefore(lunes) && !fechaReserva.isAfter(domingo);
-
-                if(dentroDelRangoSleccionado && dentroDeLaSemana) {
-                    cantidad++;
-                }
-            }
-
-            String semana = lunes.format(formato) + " - " + domingo.format(formato);
-
-            filas.add( new Object[]{ semana, cantidad } );
-
-            lunes = lunes.plusWeeks(1);
-        }
-
-        model.setActividades(filas);
+        model.setActividades(EstadisticasCalculo.actividadesPorSemana(reservas, inicio, fin));
     }
 
     private void generarGraficoRecursos() {
@@ -210,6 +153,8 @@ public class EstadisticasController {
                         "Cantidad",
                         dataset
                 );
+
+        graficoRecursos = chart;
 
         ChartPanel chartPanel = new ChartPanel(chart);
 
@@ -263,6 +208,8 @@ public class EstadisticasController {
                         dataset
                 );
 
+        graficoActividades = chart;
+
         ChartPanel chartPanel = new ChartPanel(chart);
 
         JPanel panel =
@@ -281,6 +228,46 @@ public class EstadisticasController {
 
         panel.revalidate();
         panel.repaint();
+    }
+
+    public void generarPDFRecursos() {
+
+        if (graficoRecursos == null || rangoRecInicio == null) {
+            JOptionPane.showMessageDialog(
+                    null,
+                    "Primero cargue las estadisticas de recursos"
+            );
+            return;
+        }
+
+        GeneradorPDF.generarDesdeTablaConGrafico(
+                view.getEstadisticasRectable(),
+                graficoRecursos.createBufferedImage(600, 350),
+                "Recursos reservados del " + formatear(rangoRecInicio) + " al " + formatear(rangoRecFin),
+                "EstadisticasRecursos.pdf"
+        );
+    }
+
+    public void generarPDFActividades() {
+
+        if (graficoActividades == null || rangoActInicio == null) {
+            JOptionPane.showMessageDialog(
+                    null,
+                    "Primero cargue las estadisticas de actividades"
+            );
+            return;
+        }
+
+        GeneradorPDF.generarDesdeTablaConGrafico(
+                view.getEstadisticasActtable(),
+                graficoActividades.createBufferedImage(600, 350),
+                "Actividades por semana del " + formatear(rangoActInicio) + " al " + formatear(rangoActFin),
+                "EstadisticasActividades.pdf"
+        );
+    }
+
+    private String formatear(LocalDate fecha) {
+        return fecha.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
     }
 
     public EstadisticasView getView() {

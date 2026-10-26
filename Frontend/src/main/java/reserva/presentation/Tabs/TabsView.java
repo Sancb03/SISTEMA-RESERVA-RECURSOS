@@ -2,7 +2,7 @@ package reserva.presentation.Tabs;
 
 import reserva.logic.Administrador;
 import reserva.logic.Usuario;
-import reserva.logic.ServiceProxy;
+import reserva.logic.Service;
 import reserva.presentation.Alertas.AlertasController;
 import reserva.presentation.Alertas.AlertasModel;
 import reserva.presentation.Alertas.AlertasView;
@@ -125,8 +125,8 @@ public class TabsView extends JFrame {
     /** Abre el canal de alertas con el Backend y lo cierra cuando se cierra la ventana. */
     private void iniciarAlertas(Usuario usuario, AlertasController alertasController) {
         try {
-            alertasController.iniciar(usuario);
-        } catch (java.io.IOException ex) {
+            alertasController.iniciar();
+        } catch (Exception ex) {
             JOptionPane.showMessageDialog(this,
                     "No se pudo abrir el canal de alertas con el servidor:\n" + ex.getMessage(),
                     "Alertas", JOptionPane.WARNING_MESSAGE);
@@ -134,7 +134,8 @@ public class TabsView extends JFrame {
         addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
             public void windowClosing(java.awt.event.WindowEvent e) {
-                ServiceProxy.instance().stop();
+                alertasController.detener();
+                Service.instance().stop();
             }
         });
     }

@@ -1,7 +1,6 @@
 package reserva.presentation.Login;
 
 import reserva.logic.Service;
-import reserva.logic.ServiceProxy;
 import reserva.logic.Sesion;
 import reserva.logic.Usuario;
 
@@ -18,7 +17,7 @@ class LoginController {
     LoginController(LoginView view, LoginModel model) {
         this.view = view;
         this.model = model;
-        this.service = ServiceProxy.instance();
+        this.service = Service.instance();
     }
 
     LoginView getView() {
@@ -37,12 +36,12 @@ class LoginController {
             throw new Exception("Debe indicar su clave.");
         }
 
-        Usuario usuario = service.buscarUsuarioPorIdentificacion(identificacion.trim());
-        if (usuario == null) {
-            throw new Exception("No existe un usuario con esa identificación.");
-        }
-        if (!usuario.getClave().equals(clave)) {
-            throw new Exception("La clave es incorrecta.");
+        Usuario usuario;
+        try {
+            usuario = service.autenticar(identificacion.trim(), clave);
+        } catch (RuntimeException ex) {
+            // el Backend explica que paso (no existe, clave incorrecta, sin conexion...)
+            throw new Exception(ex.getMessage());
         }
 
         Sesion.setUsuarioActual(usuario);
