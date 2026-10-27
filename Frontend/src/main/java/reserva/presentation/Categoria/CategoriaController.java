@@ -117,6 +117,16 @@ public class CategoriaController {
                 return;
             }
 
+            if (c.getDescripcion().length() > 80) {
+
+                JOptionPane.showMessageDialog(
+                        view.getCategoriaPanel(),
+                        "La descripción no puede pasar de 80 caracteres."
+                );
+
+                return;
+            }
+
             boolean ok;
 
             if (c.getId() == null ||

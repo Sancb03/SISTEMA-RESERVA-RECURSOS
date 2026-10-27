@@ -297,6 +297,16 @@ public class ServiceProxy implements Service {
     }
 
     @Override
+    public Usuario login(String identificacion, String clave) {
+        return (Usuario) enviar("login", identificacion, clave);
+    }
+
+    @Override
+    public boolean cambiarClave(String identificacion, String claveActual, String claveNueva) {
+        return (boolean) enviar("cambiarClave", identificacion, claveActual, claveNueva);
+    }
+
+    @Override
     public boolean guardarFuncionario(Funcionario funcionario, Usuario usuarioActual) {
         return (boolean) enviar("guardarFuncionario", funcionario, usuarioActual);
     }

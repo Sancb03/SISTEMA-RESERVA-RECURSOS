@@ -113,6 +113,41 @@ public class FuncionariosController {
         }
     }
 
+    public void guardar(String idTexto, String nombre, String telefono) {
+        idTexto = idTexto == null ? "" : idTexto.trim();
+        nombre = nombre == null ? "" : nombre.trim();
+        telefono = telefono == null ? "" : telefono.trim();
+
+        String error = null;
+        if (idTexto.isEmpty()) {
+            error = "El id es obligatorio.";
+        } else if (!idTexto.matches("\\d{1,9}") || Integer.parseInt(idTexto) <= 0) {
+            error = "El id debe ser un número entero positivo (solo dígitos).";
+        } else if (nombre.isEmpty()) {
+            error = "El nombre es obligatorio.";
+        } else if (nombre.length() > 80) {
+            error = "El nombre no puede pasar de 80 caracteres.";
+        } else if (telefono.isEmpty()) {
+            error = "El teléfono es obligatorio.";
+        } else if (!telefono.matches("[0-9+\\-() ]+") || !telefono.matches(".*\\d.*")) {
+            error = "El teléfono solo puede tener números (y los símbolos + - ( ) ), no letras.";
+        } else if (telefono.length() > 20) {
+            error = "El teléfono no puede pasar de 20 caracteres.";
+        }
+
+        if (error != null) {
+            JOptionPane.showMessageDialog(view.getPanel1(), error,
+                    "Dato inválido", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        Funcionario f = new Funcionario();
+        f.setId(Integer.parseInt(idTexto));
+        f.setNombre(nombre);
+        f.setTelefono(telefono);
+        guardar(f);
+    }
+
     public void guardar(Funcionario f) {
         try {
 
@@ -132,6 +167,21 @@ public class FuncionariosController {
                             f.getId(),
                             usuarioActual
                     );
+
+            Funcionario enPantalla = model.getCurrent();
+            boolean esEdicion = existente != null && enPantalla != null && enPantalla.getId() == f.getId();
+            if (existente != null && !esEdicion) {
+
+                JOptionPane.showMessageDialog(
+                        view.getPanel1(),
+                        "Ya existe un funcionario con el id " + f.getId() +
+                                ". Búsquelo para modificarlo o use otro id.",
+                        "Id repetido",
+                        JOptionPane.WARNING_MESSAGE
+                );
+
+                return;
+            }
 
             boolean ok;
 
@@ -154,7 +204,7 @@ public class FuncionariosController {
 
                     JOptionPane.showMessageDialog(
                             view.getPanel1(),
-                            "No se pudo crear el funcionario."
+                            "Ese funcionario ya existe."
                     );
                 }
 

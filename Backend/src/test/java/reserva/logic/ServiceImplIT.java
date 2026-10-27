@@ -81,22 +81,87 @@ class ServiceImplIT {
     @DisplayName("Los usuarios semilla del script existen y tienen el rol correcto")
     void usuariosSemilla() {
         assertTrue(admin instanceof Administrador);
-        assertEquals("admin", admin.getClave());
+        assertNull(admin.getClave(), "la clave no debe salir del Backend");
         assertTrue(juan instanceof Funcionario);
         assertEquals("Juan Perez", juan.getNombre());
         assertNull(service.buscarUsuarioPorIdentificacion("no-existe"));
     }
 
     @Test
-    @DisplayName("actualizarUsuario cambia la clave (lo que hace Cambiar Clave)")
-    void cambiarClave() {
-        Usuario maria = service.buscarUsuarioPorIdentificacion("222");
-        maria.setClave("nuevaClave1");
-        assertTrue(service.actualizarUsuario(maria));
-        assertEquals("nuevaClave1", service.buscarUsuarioPorIdentificacion("222").getClave());
+    @DisplayName("login correcto devuelve el usuario sin su clave")
+    void loginCorrecto() {
+        Usuario u = service.login("111", "111");
+        assertEquals("Juan Perez", u.getNombre());
+        assertTrue(u instanceof Funcionario);
+        assertNull(u.getClave(), "la clave no debe volver al Frontend");
 
+        assertTrue(service.login(" admin ", "admin") instanceof Administrador, "la identificación se recorta");
+    }
+
+    @Test
+    @DisplayName("login incorrecto: clave mala, usuario inexistente y campos vacíos lanzan IllegalArgumentException")
+    void loginIncorrecto() {
+        IllegalArgumentException claveMala =
+                assertThrows(IllegalArgumentException.class, () -> service.login("111", "mala"));
+        assertEquals("La clave es incorrecta.", claveMala.getMessage());
+
+        IllegalArgumentException sinUsuario =
+                assertThrows(IllegalArgumentException.class, () -> service.login("no-existe", "x"));
+        assertEquals("No existe un usuario con esa identificación.", sinUsuario.getMessage());
+
+        assertThrows(IllegalArgumentException.class, () -> service.login("", "111"));
+        assertThrows(IllegalArgumentException.class, () -> service.login("111", " "));
+        assertThrows(IllegalArgumentException.class, () -> service.login(null, null));
+    }
+
+    @Test
+    @DisplayName("cambiarClave valida la clave actual en el Backend y la nueva clave sirve al volver a entrar")
+    void cambiarClave() {
+        assertTrue(service.cambiarClave("222", "222", "nuevaClave1"));
+
+        assertEquals("Maria Perez", service.login("222", "nuevaClave1").getNombre());
+        assertThrows(IllegalArgumentException.class, () -> service.login("222", "222"),
+                "la clave vieja ya no debe servir");
+
+        // se deja como estaba (la clave semilla "222" es más corta que el mínimo de cambiarClave,
+        // por eso se restaura con actualizarUsuario)
+        Usuario maria = service.buscarUsuarioPorIdentificacion("222");
         maria.setClave("222");
         assertTrue(service.actualizarUsuario(maria));
+        assertEquals("Maria Perez", service.login("222", "222").getNombre());
+    }
+
+    @Test
+    @DisplayName("cambiarClave rechaza clave actual incorrecta, clave nueva corta y usuario inexistente")
+    void cambiarClaveRechazaDatosMalos() {
+        IllegalArgumentException actualMala = assertThrows(IllegalArgumentException.class,
+                () -> service.cambiarClave("444", "equivocada", "claveNueva1"));
+        assertEquals("La clave actual no coincide.", actualMala.getMessage());
+
+        assertThrows(IllegalArgumentException.class, () -> service.cambiarClave("444", "444", "123"));
+        assertThrows(IllegalArgumentException.class, () -> service.cambiarClave("no-existe", "x", "claveNueva1"));
+
+        assertEquals("Keren Rojas", service.login("444", "444").getNombre());
+    }
+
+    @Test
+    @DisplayName("Ninguna consulta de usuarios o funcionarios devuelve la clave")
+    void laClaveNuncaViajaAlFrontend() {
+        assertNull(service.buscarUsuarioPorId(juan.getId()).getClave());
+        assertNull(service.buscarUsuarioPorIdentificacion("111").getClave());
+        assertTrue(service.listarUsuarios().stream().allMatch(u -> u.getClave() == null));
+        assertTrue(service.listarFuncionarios(admin).stream().allMatch(f -> f.getClave() == null));
+        assertTrue(service.buscarFuncionariosPorNombre("perez", admin).stream().allMatch(f -> f.getClave() == null));
+        assertNull(service.buscarFuncionarioPorId(juan.getId(), admin).getClave());
+    }
+
+    @Test
+    @DisplayName("actualizarUsuario sin clave conserva la que ya estaba guardada")
+    void actualizarUsuarioSinClaveConservaLaClave() {
+        Usuario keren = service.buscarUsuarioPorIdentificacion("444");
+        keren.setNombre("Keren Rojas");
+        assertTrue(service.actualizarUsuario(keren));
+        assertEquals("Keren Rojas", service.login("444", "444").getNombre());
     }
 
     // ---------- Funcionarios ----------
@@ -111,10 +176,13 @@ class ServiceImplIT {
 
         assertTrue(service.guardarFuncionario(nuevo, admin));
 
+        assertNull(nuevo.getClave(), "la copia que vuelve al Frontend no lleva la clave");
+
         Usuario guardado = service.buscarUsuarioPorIdentificacion("7001");
-        assertEquals("7001", guardado.getClave());
+        assertNull(guardado.getClave());
         assertEquals("Ana Lopez", guardado.getNombre());
         assertEquals("8888", ((Funcionario) guardado).getTelefono());
+        assertEquals("Ana Lopez", service.login("7001", "7001").getNombre(), "la clave inicial es el id");
     }
 
     @Test
@@ -155,7 +223,8 @@ class ServiceImplIT {
 
         Usuario leido = service.buscarUsuarioPorIdentificacion("7003");
         assertNotNull(leido, "debe poder seguir entrando con su identificación");
-        assertEquals("7003", leido.getClave());
+        assertEquals("Pedro Mora Rojas", service.login("7003", "7003").getNombre(),
+                "al editar no se pierde la clave");
         assertEquals("Pedro Mora Rojas", leido.getNombre());
         assertEquals("2222", ((Funcionario) leido).getTelefono());
     }
@@ -188,6 +257,15 @@ class ServiceImplIT {
         assertTrue(encontrados.size() >= 2, "Juan Perez y Maria Perez");
     }
 
+    @Test
+    @DisplayName("buscarFuncionariosPorNombre: sin coincidencias o texto vacío devuelve lista vacía; solo el admin puede")
+    void buscarPorNombreSinResultados() {
+        assertTrue(service.buscarFuncionariosPorNombre("zzz-no-existe", admin).isEmpty());
+        assertTrue(service.buscarFuncionariosPorNombre("   ", admin).isEmpty());
+        assertTrue(service.buscarFuncionariosPorNombre(null, admin).isEmpty());
+        assertThrows(SecurityException.class, () -> service.buscarFuncionariosPorNombre("perez", juan));
+    }
+
     // ---------- Categorias ----------
 
     @Test
@@ -206,6 +284,22 @@ class ServiceImplIT {
         Categoria c = new Categoria();
         c.setDescripcion("   ");
         assertFalse(service.guardarCategoria(c, admin));
+    }
+
+    @Test
+    @DisplayName("buscarCategoriasPorDescripcion ignora mayúsculas y busca por parte del texto")
+    void buscarCategoriasPorDescripcion() {
+        Categoria c = crearCategoria("Auditorio Principal");
+
+        List<Categoria> encontradas = service.buscarCategoriasPorDescripcion("AUDITORIO prin", admin);
+        assertTrue(encontradas.stream().anyMatch(x -> x.getId().equals(c.getId())));
+
+        List<Categoria> porParte = service.buscarCategoriasPorDescripcion("ditorio", admin);
+        assertTrue(porParte.stream().anyMatch(x -> x.getId().equals(c.getId())));
+
+        assertTrue(service.buscarCategoriasPorDescripcion("zzz-no-existe", admin).isEmpty());
+        assertTrue(service.buscarCategoriasPorDescripcion("  ", admin).isEmpty());
+        assertThrows(SecurityException.class, () -> service.buscarCategoriasPorDescripcion("sala", juan));
     }
 
     @Test

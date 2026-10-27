@@ -47,11 +47,13 @@ public class FuncionariosView implements PropertyChangeListener {
 
         buscarButton.addActionListener(e -> controller.buscar());
 
-        guardarButton.addActionListener(e -> {
-            Funcionario f = take();
-            controller.guardar(f);
-        });
-
+        guardarButton.addActionListener(e ->
+                controller.guardar(
+                        idFun_tField.getText(),
+                        NombreFun_tField.getText(),
+                        TelefonoFun_tField.getText()
+                )
+        );
         borrarButton.addActionListener(e ->
                 controller.borrar(idFun_tField.getText())
         );
@@ -114,7 +116,7 @@ public class FuncionariosView implements PropertyChangeListener {
                 if (actual != null) {
 
                     idFun_tField.setText(
-                            String.valueOf(actual.getId())
+                            actual.getId() == 0 ? "" : String.valueOf(actual.getId())
                     );
 
                     NombreFun_tField.setText(

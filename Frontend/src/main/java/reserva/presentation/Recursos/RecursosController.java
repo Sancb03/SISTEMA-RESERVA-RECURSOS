@@ -171,14 +171,22 @@ public class RecursosController {
 
         try {
 
-            if (r.getId() == null || r.getId().isBlank() ||
-                    r.getCategoria() == null ||
-                    r.getDescripcion() == null || r.getDescripcion().isBlank()) {
+            String error = null;
+            if (r.getId() == null || r.getId().isBlank()) {
+                error = "El id del recurso es obligatorio.";
+            } else if (r.getId().length() > 20) {
+                error = "El id del recurso no puede pasar de 20 caracteres.";
+            } else if (r.getCategoria() == null) {
+                error = "Debe elegir una categoría.";
+            } else if (r.getDescripcion() == null || r.getDescripcion().isBlank()) {
+                error = "La descripción es obligatoria.";
+            } else if (r.getDescripcion().length() > 120) {
+                error = "La descripción no puede pasar de 120 caracteres.";
+            }
 
-                JOptionPane.showMessageDialog(
-                        view.getPanel1(),
-                        "El id, la categoría y la descripción son obligatorios."
-                );
+            if (error != null) {
+                JOptionPane.showMessageDialog(view.getPanel1(), error,
+                        "Dato inválido", JOptionPane.WARNING_MESSAGE);
                 return;
             }
 

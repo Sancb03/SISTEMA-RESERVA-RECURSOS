@@ -43,16 +43,8 @@ class CambiarClaveController {
             throw new Exception("La confirmación no coincide con la nueva clave.");
         }
 
-        Usuario usuario = service.buscarUsuarioPorIdentificacion(identificacion.trim());
-        if (usuario == null) {
-            throw new Exception("No se encontró un usuario con esa identificación.");
-        }
-        if (!usuario.getClave().equals(claveActual)) {
-            throw new Exception("La clave actual no coincide.");
-        }
-
-        usuario.setClave(claveNueva);
-        if (!service.actualizarUsuario(usuario)) {
+        // El Backend verifica la clave actual y guarda la nueva.
+        if (!service.cambiarClave(identificacion.trim(), claveActual, claveNueva)) {
             throw new Exception("No se pudo actualizar la clave del usuario.");
         }
     }

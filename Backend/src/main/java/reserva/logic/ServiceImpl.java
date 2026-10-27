@@ -66,7 +66,18 @@ public class ServiceImpl implements Service {
 
     @Override
     public synchronized boolean actualizarUsuario(Usuario usuario) {
-        return usuario != null && usuarioDao.update(usuario);
+        if (usuario == null) {
+            return false;
+        }
+        if (usuario.getClave() == null || usuario.getClave().isBlank()) {
+            // el Frontend ya no conoce la clave: si no manda una nueva, se conserva la que hay
+            Usuario existente = usuarioDao.read(usuario.getId());
+            if (existente == null) {
+                return false;
+            }
+            usuario.setClave(existente.getClave());
+        }
+        return usuarioDao.update(usuario);
     }
 
     @Override
@@ -76,19 +87,81 @@ public class ServiceImpl implements Service {
 
     @Override
     public synchronized Usuario buscarUsuarioPorId(int id) {
-        return usuarioDao.read(id);
+        return sinClave(usuarioDao.read(id));
     }
 
     @Override
     public synchronized Usuario buscarUsuarioPorIdentificacion(String identificacion) {
-        return identificacion == null ? null : usuarioDao.readByIdentificacion(identificacion);
+        return identificacion == null ? null : sinClave(usuarioDao.readByIdentificacion(identificacion));
     }
 
     @Override
     public synchronized List<Usuario> listarUsuarios() {
-        return usuarioDao.findAll();
+        List<Usuario> resultado = new ArrayList<>();
+        for (Usuario u : usuarioDao.findAll()) {
+            resultado.add(sinClave(u));
+        }
+        return resultado;
     }
 
+    @Override
+    public synchronized Usuario login(String identificacion, String clave) {
+        if (identificacion == null || identificacion.isBlank()) {
+            throw new IllegalArgumentException("Debe indicar su identificación.");
+        }
+        if (clave == null || clave.isBlank()) {
+            throw new IllegalArgumentException("Debe indicar su clave.");
+        }
+        Usuario usuario = usuarioDao.readByIdentificacion(identificacion.trim());
+        if (usuario == null) {
+            throw new IllegalArgumentException("No existe un usuario con esa identificación.");
+        }
+        if (!clave.equals(usuario.getClave())) {
+            throw new IllegalArgumentException("La clave es incorrecta.");
+        }
+        return sinClave(usuario);
+    }
+
+    @Override
+    public synchronized boolean cambiarClave(String identificacion, String claveActual, String claveNueva) {
+        if (identificacion == null || identificacion.isBlank()) {
+            throw new IllegalArgumentException("Primero escriba su identificación en la pantalla de ingreso.");
+        }
+        if (claveNueva == null || claveNueva.length() < 6) {
+            throw new IllegalArgumentException("La nueva clave debe tener al menos 6 caracteres.");
+        }
+        Usuario usuario = usuarioDao.readByIdentificacion(identificacion.trim());
+        if (usuario == null) {
+            throw new IllegalArgumentException("No se encontró un usuario con esa identificación.");
+        }
+        if (claveActual == null || !claveActual.equals(usuario.getClave())) {
+            throw new IllegalArgumentException("La clave actual no coincide.");
+        }
+        usuario.setClave(claveNueva);
+        return usuarioDao.update(usuario);
+    }
+
+    /** Copia del usuario SIN clave: es lo único que sale del Backend hacia el Frontend. */
+    private static <T extends Usuario> T sinClave(T original) {
+        if (original == null) {
+            return null;
+        }
+        Usuario copia;
+        if (original instanceof Funcionario f) {
+            Funcionario nuevo = new Funcionario();
+            nuevo.setTelefono(f.getTelefono());
+            copia = nuevo;
+        } else {
+            copia = new Administrador();
+        }
+        copia.setId(original.getId());
+        copia.setIdentificacion(original.getIdentificacion());
+        copia.setNombre(original.getNombre());
+        copia.setClave(null);
+        @SuppressWarnings("unchecked")
+        T resultado = (T) copia;
+        return resultado;
+    }
     // ===================== FUNCIONARIOS =====================
 
     @Override
@@ -100,8 +173,10 @@ public class ServiceImpl implements Service {
         if (funcionario.getIdentificacion() == null || funcionario.getIdentificacion().isBlank()) {
             funcionario.setIdentificacion(String.valueOf(funcionario.getId()));
         }
-        funcionario.setClave(String.valueOf(funcionario.getId()));
-        return usuarioDao.create(funcionario);
+        funcionario.setClave(String.valueOf(funcionario.getId())); // clave inicial = id
+        boolean creado = usuarioDao.create(funcionario);
+        funcionario.setClave(null); // la copia que vuelve al Frontend no lleva la clave
+        return creado;
     }
 
     @Override
@@ -139,7 +214,7 @@ public class ServiceImpl implements Service {
     public synchronized Funcionario buscarFuncionarioPorId(int id, Usuario usuarioActual) {
         validarAdmin(usuarioActual);
         Usuario u = usuarioDao.read(id);
-        return (u instanceof Funcionario) ? (Funcionario) u : null;
+        return (u instanceof Funcionario f) ? sinClave(f) : null;
     }
 
     @Override
@@ -148,13 +223,21 @@ public class ServiceImpl implements Service {
         if (nombre == null || nombre.isBlank()) {
             return new ArrayList<>();
         }
-        return usuarioDao.findFuncionariosByNombre(nombre);
+        List<Funcionario> resultado = new ArrayList<>();
+        for (Funcionario f : usuarioDao.findFuncionariosByNombre(nombre)) {
+            resultado.add(sinClave(f));
+        }
+        return resultado;
     }
 
     @Override
     public synchronized List<Funcionario> listarFuncionarios(Usuario usuarioActual) {
         validarAdmin(usuarioActual);
-        return usuarioDao.findFuncionarios();
+        List<Funcionario> resultado = new ArrayList<>();
+        for (Funcionario f : usuarioDao.findFuncionarios()) {
+            resultado.add(sinClave(f));
+        }
+        return resultado;
     }
 
     // ===================== CATEGORIAS =====================

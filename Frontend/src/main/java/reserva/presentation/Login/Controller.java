@@ -30,20 +30,7 @@ class LoginController {
     }
 
     void login(String identificacion, String clave) throws Exception {
-        if (identificacion == null || identificacion.isBlank()) {
-            throw new Exception("Debe indicar su identificación.");
-        }
-        if (clave == null || clave.isBlank()) {
-            throw new Exception("Debe indicar su clave.");
-        }
-
-        Usuario usuario = service.buscarUsuarioPorIdentificacion(identificacion.trim());
-        if (usuario == null) {
-            throw new Exception("No existe un usuario con esa identificación.");
-        }
-        if (!usuario.getClave().equals(clave)) {
-            throw new Exception("La clave es incorrecta.");
-        }
+        Usuario usuario = service.login(identificacion, clave);
 
         Sesion.setUsuarioActual(usuario);
         model.setUsuarioAutenticado(usuario);

@@ -28,6 +28,8 @@ public interface Service {
     Usuario buscarUsuarioPorId(int id);
     Usuario buscarUsuarioPorIdentificacion(String identificacion);
     List<Usuario> listarUsuarios();
+    Usuario login(String identificacion, String clave);
+    boolean cambiarClave(String identificacion, String claveActual, String claveNueva);
 
     // ===================== FUNCIONARIOS =====================
     boolean guardarFuncionario(Funcionario funcionario, Usuario usuarioActual);
