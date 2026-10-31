@@ -102,7 +102,7 @@ public class Service implements IService {
         }
     }
 
-    private synchronized void desconectar() {
+    private synchronized void disconnect() {
         try {
             if (s != null) {
                 s.close();
@@ -124,7 +124,7 @@ public class Service implements IService {
             }
         } catch (IOException ignored) {
         }
-        desconectar();
+        disconnect();
     }
 
     // =============== ENVÍO DE PETICIONES ===============
@@ -138,7 +138,7 @@ public class Service implements IService {
             enviar(operacion, parametros);
             return recibir();
         } catch (IOException | ClassNotFoundException ex) {
-            desconectar(); // la próxima llamada intenta reconectar
+            disconnect(); // la próxima llamada intenta reconectar
             throw new RuntimeException("No se pudo comunicar con el servidor (" + host + ":" + port + "): "
                     + ex.getMessage(), ex);
         }
@@ -155,7 +155,7 @@ public class Service implements IService {
             copiarEstado(is.readObject(), entidad);
             return resultado;
         } catch (IOException | ClassNotFoundException ex) {
-            desconectar();
+            disconnect();
             throw new RuntimeException("No se pudo comunicar con el servidor (" + host + ":" + port + "): "
                     + ex.getMessage(), ex);
         }

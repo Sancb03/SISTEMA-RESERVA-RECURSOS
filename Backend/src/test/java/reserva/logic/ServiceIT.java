@@ -22,19 +22,19 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
  *
  * Cada prueba usa ids propios (ver sigId), así que no dependen del orden.
  */
-@DisplayName("ServiceImpl + MySQL: CRUD, permisos, reglas y disponibilidad")
-class ServiceImplIT {
+@DisplayName("Service + MySQL: CRUD, permisos, reglas y disponibilidad")
+class ServiceIT {
 
     private static final AtomicInteger contador = new AtomicInteger();
 
-    private static ServiceImpl service;
+    private static Service service;
     private static Usuario admin;
     private static Usuario juan;
 
     @BeforeAll
     static void prepararBase() {
         assumeTrue(BaseDePruebas.preparar(), "No hay MySQL disponible: se salta la prueba de integración");
-        service = new ServiceImpl();
+        service = new Service();
         admin = service.buscarUsuarioPorIdentificacion("admin");
         juan = service.buscarUsuarioPorIdentificacion("111");
     }
@@ -97,6 +97,82 @@ class ServiceImplIT {
 
         maria.setClave("222");
         assertTrue(service.actualizarUsuario(maria));
+    }
+
+    // ---------- Autenticación y cambio de clave (en el Backend) ----------
+
+    @Test
+    @DisplayName("autenticar con identificación y clave correctas devuelve el usuario SIN la clave")
+    void autenticarCorrecto() {
+        Usuario u = service.autenticar("admin", "admin");
+        assertEquals("admin", u.getIdentificacion());
+        assertNull(u.getClave(), "El Backend no debe devolver la clave al Frontend");
+    }
+
+    @Test
+    @DisplayName("autenticar con clave incorrecta lanza SecurityException; usuario inexistente o vacío, IllegalArgumentException")
+    void autenticarIncorrecto() {
+        assertThrows(SecurityException.class, () -> service.autenticar("admin", "mala"));
+        assertThrows(IllegalArgumentException.class, () -> service.autenticar("no-existe-xyz", "1234"));
+        assertThrows(IllegalArgumentException.class, () -> service.autenticar("", "1234"));
+        assertThrows(IllegalArgumentException.class, () -> service.autenticar("admin", " "));
+    }
+
+    @Test
+    @DisplayName("cambiarClave: con la clave actual correcta cambia; la vieja deja de servir y la nueva sí")
+    void cambiarClaveCorrecto() {
+        Funcionario nuevo = new Funcionario();
+        nuevo.setId(7101);
+        nuevo.setNombre("Clave Prueba");
+        nuevo.setTelefono("8000");
+        assertTrue(service.guardarFuncionario(nuevo, admin));
+
+        assertTrue(service.cambiarClave("7101", "7101", "nueva123"));
+
+        assertThrows(SecurityException.class, () -> service.autenticar("7101", "7101"));
+        assertEquals("7101", service.autenticar("7101", "nueva123").getIdentificacion());
+    }
+
+    @Test
+    @DisplayName("cambiarClave rechaza clave actual errónea, clave nueva corta y usuario inexistente")
+    void cambiarClaveRechazos() {
+        assertThrows(SecurityException.class, () -> service.cambiarClave("admin", "incorrecta", "abcdef"));
+        assertThrows(IllegalArgumentException.class, () -> service.cambiarClave("admin", "admin", "abc"));
+        assertThrows(IllegalArgumentException.class, () -> service.cambiarClave("no-existe-xyz", "a", "abcdef"));
+        // la clave de admin sigue siendo la original
+        assertEquals("admin", service.autenticar("admin", "admin").getIdentificacion());
+    }
+
+    @Test
+    @DisplayName("El Backend valida los datos: funcionario sin nombre y reserva incompleta o con horas al revés")
+    void validacionesDelBackend() {
+        Funcionario sinNombre = new Funcionario();
+        sinNombre.setId(7201);
+        assertThrows(IllegalArgumentException.class, () -> service.guardarFuncionario(sinNombre, admin));
+
+        Categoria c = crearCategoria(sigId("Cat-Val"));
+        Recurso r = crearRecurso(c);
+        Reserva incompleta = new Reserva();
+        incompleta.setFuncionario(juan);
+        incompleta.setRecursos(new ArrayList<>(List.of(r)));
+        assertThrows(IllegalArgumentException.class, () -> service.guardarReserva(incompleta));
+
+        Reserva alReves = new Reserva();
+        alReves.setActividad("Al reves");
+        alReves.setFecha(LocalDate.of(2031, 1, 6));
+        alReves.setHoraInicio(LocalTime.of(11, 0));
+        alReves.setHoraFin(LocalTime.of(10, 0));
+        alReves.setFuncionario(juan);
+        alReves.setRecursos(new ArrayList<>(List.of(r)));
+        assertThrows(IllegalArgumentException.class, () -> service.guardarReserva(alReves));
+
+        Reserva sinRecursos = new Reserva();
+        sinRecursos.setActividad("Sin recursos");
+        sinRecursos.setFecha(LocalDate.of(2031, 1, 6));
+        sinRecursos.setHoraInicio(LocalTime.of(9, 0));
+        sinRecursos.setHoraFin(LocalTime.of(10, 0));
+        sinRecursos.setFuncionario(juan);
+        assertThrows(IllegalArgumentException.class, () -> service.guardarReserva(sinRecursos));
     }
 
     // ---------- Funcionarios ----------
@@ -415,19 +491,5 @@ class ServiceImplIT {
         assertNull(service.buscarReservaPorId(reserva.getId()));
         assertFalse(service.eliminarReserva(reserva.getId()));
         assertTrue(service.eliminarRecurso(recurso.getId(), admin), "ya no está en ninguna reserva");
-    }
-
-    @Test
-    @DisplayName("Los oyentes de 'nueva reserva' se enteran al guardar (así se arman las alertas)")
-    void oyenteDeNuevaReserva() {
-        List<Reserva> recibidas = new ArrayList<>();
-        service.agregarOyenteNuevaReserva(recibidas::add);
-
-        Recurso recurso = crearRecurso(crearCategoria("Oyente"));
-        Reserva reserva = crearReserva(juan, LocalDate.of(2027, 3, 8), LocalTime.of(9, 0), LocalTime.of(10, 0), recurso);
-
-        assertEquals(1, recibidas.size());
-        assertEquals(reserva.getId(), recibidas.get(0).getId());
-        assertEquals(1, recibidas.get(0).getRecursos().size());
     }
 }

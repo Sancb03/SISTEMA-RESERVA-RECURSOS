@@ -13,12 +13,12 @@ import java.util.Properties;
  *
  * Diferencias a propósito:
  *  - En vez de System.exit(-1) si no conecta, lanza RuntimeException con un
- *    mensaje claro (el Servidor lo muestra y termina).
+ *    mensaje claro (Application lo muestra y termina).
  *  - Si MySQL cerró la conexión por inactividad, se reconecta sola.
  *  - La base se puede cambiar con -Dreserva.db.name=... (así las pruebas
  *    de integración usan otra base y no tocan la de verdad).
  *
- * Todos los DAOs comparten esta única conexión, por eso ServiceImpl
+ * Todos los DAOs comparten esta única conexión, por eso Service
  * sincroniza sus métodos (un cliente a la vez toca la base).
  */
 public class Database {

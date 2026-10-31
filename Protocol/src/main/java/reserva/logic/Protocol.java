@@ -8,7 +8,7 @@ package reserva.logic;
  */
 public class Protocol {
     public static final String SERVER = "localhost";
-    public static final int PORT = 5000;
+    public static final int PORT = 1234;
 
     // ----- USUARIOS (usado por Login) -----
     public static final int GUARDAR_USUARIO = 101;
