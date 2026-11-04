@@ -102,8 +102,7 @@ public class TabsView extends JFrame {
         CalendarioActTab.add(calActividadesView.getPanelPrincipal(), BorderLayout.CENTER);
 
         EstadisticasView estadisticasView = new EstadisticasView();
-        new EstadisticasController(estadisticasView);
-
+        EstadisticasController estadisticasController = new EstadisticasController(estadisticasView);
         EstadisticasTab.setLayout(new BorderLayout());
         EstadisticasTab.add(estadisticasView.getPanelPrincipal(), BorderLayout.CENTER);
 
@@ -117,6 +116,9 @@ public class TabsView extends JFrame {
                 recursosViewFinal.getController().cargarCategorias();
             } else if (seleccionada == CalendarioTab) {
                 calendarioController.cargarCategoriasRecursos();
+                calendarioController.refrescar();
+            } else if (seleccionada == EstadisticasTab) {
+                estadisticasController.refrescar();
             }
         });
 

@@ -98,4 +98,34 @@ class EstadisticasCalculoTest {
         assertEquals(Integer.valueOf(1), filas.get(1)[1]);
         assertEquals(Integer.valueOf(0), filas.get(2)[1]);
     }
+
+    @Test
+    @DisplayName("sinDatos: lista vacía o todas las cantidades en cero es 'sin datos'; con alguna cantidad no")
+    void sinDatos() {
+        assertTrue(EstadisticasCalculo.sinDatos(List.of()));
+
+        List<Object[]> ceros = EstadisticasCalculo.actividadesPorSemana(List.of(),
+                LocalDate.of(2026, 10, 26), LocalDate.of(2026, 11, 8));
+        assertEquals(2, ceros.size(), "las semanas aparecen aunque estén en cero");
+        assertTrue(EstadisticasCalculo.sinDatos(ceros));
+
+        List<Object[]> conDatos = EstadisticasCalculo.recursosPorCategoria(
+                List.of(reserva(LocalDate.of(2026, 10, 27), Reserva.ACTIVA, recurso("S1", salas))),
+                LocalDate.of(2026, 10, 26), LocalDate.of(2026, 11, 1));
+        assertFalse(EstadisticasCalculo.sinDatos(conDatos));
+    }
+
+    @Test
+    @DisplayName("Un rango de un solo día incluye las reservas de ese día y de ningún otro")
+    void rangoDeUnSoloDia() {
+        LocalDate dia = LocalDate.of(2026, 10, 27);
+        List<Reserva> reservas = List.of(
+                reserva(dia, Reserva.ACTIVA, recurso("S1", salas)),
+                reserva(dia.plusDays(1), Reserva.ACTIVA, recurso("S1", salas)));
+
+        List<Object[]> filas = EstadisticasCalculo.recursosPorCategoria(reservas, dia, dia);
+
+        assertEquals(1, filas.size());
+        assertEquals(Integer.valueOf(1), filas.get(0)[1]);
+    }
 }

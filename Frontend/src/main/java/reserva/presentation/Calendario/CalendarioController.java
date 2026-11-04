@@ -22,6 +22,13 @@ public class CalendarioController {
     private final CalendarioModel model;
     private final Usuario usuarioActual;
 
+    // última consulta de cada vista, para repetirla al volver a la pestaña
+    private LocalDate ultimaFechaRecursos;
+    private Categoria ultimaCategoria;
+    private LocalDate ultimaFechaActividades;
+
+
+
     public CalendarioController(
             CalendarioRecursosView recursosView,
             CalendarioActividadesView actividadesView,
@@ -158,6 +165,8 @@ public class CalendarioController {
 
             model.setColumnasRecursos(columnas);
             model.setFilasRecursos(filas);
+            ultimaFechaRecursos = fecha;
+            ultimaCategoria = categoria;
 
         } catch (RuntimeException ex) {
 
@@ -171,60 +180,61 @@ public class CalendarioController {
     public void cargarCalendarioActividades(LocalDate fecha) {
 
         if (fecha == null) {
-
             JOptionPane.showMessageDialog(null, "Seleccione una fecha");
-
             return;
         }
 
-        DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM");
+        try {
+            DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM");
+            LocalDate semana = fecha.with(DayOfWeek.MONDAY);
 
-        LocalDate semana = fecha.with(DayOfWeek.MONDAY);
+            List<String> columnas = new ArrayList<>();
+            columnas.add("Hora");
+            columnas.add("Lunes " + semana.format(formato));
+            columnas.add("Martes " + semana.plusDays(1).format(formato));
+            columnas.add("Miercoles " + semana.plusDays(2).format(formato));
+            columnas.add("Jueves " + semana.plusDays(3).format(formato));
+            columnas.add("Viernes " + semana.plusDays(4).format(formato));
+            columnas.add("Sabado " + semana.plusDays(5).format(formato));
+            columnas.add("Domingo " + semana.plusDays(6).format(formato));
 
-        List<String> columnas = new ArrayList<>();
+            List<Reserva> reservas = Service.instance().listarReservas();
+            List<Object[]> filas = new ArrayList<>();
 
-        columnas.add("Hora");
+            for (int hora = 7; hora <= 20; hora++) {
+                Object[] fila = new Object[8];
+                fila[0] = String.format("%02d:00", hora);
 
-        columnas.add("Lunes " + semana.format(formato));
+                LocalTime inicio = LocalTime.of(hora, 0);
+                LocalTime fin = inicio.plusHours(1);
 
-        columnas.add("Martes " + semana.plusDays(1).format(formato));
+                for (int dia = 0; dia < 7; dia++) {
+                    LocalDate fechaDia = semana.plusDays(dia);
+                    fila[dia + 1] = buscarActividades(reservas, fechaDia, inicio, fin);
+                }
 
-        columnas.add("Miercoles " + semana.plusDays(2).format(formato));
-
-        columnas.add("Jueves " + semana.plusDays(3).format(formato));
-
-        columnas.add("Viernes " + semana.plusDays(4).format(formato));
-
-        columnas.add("Sabado " + semana.plusDays(5).format(formato));
-
-        columnas.add("Domingo " + semana.plusDays(6).format(formato));
-
-        List<Reserva> reservas = Service.instance().listarReservas();
-
-        List<Object[]> filas = new ArrayList<>();
-
-        for (int hora = 7; hora <= 20; hora++) {
-
-            Object[] fila = new Object[8];
-
-            fila[0] = String.format("%02d:00", hora);
-
-            LocalTime inicio = LocalTime.of(hora, 0);
-
-            LocalTime fin = inicio.plusHours(1);
-
-            for (int dia = 0; dia < 7; dia++) {
-
-                LocalDate fechaDia = semana.plusDays(dia);
-
-                fila[dia + 1] = buscarActividades(reservas, fechaDia, inicio, fin);
+                filas.add(fila);
             }
 
-            filas.add(fila);
+            model.setColumnasActividades(columnas);
+            model.setFilasActividades(filas);
+            ultimaFechaActividades = fecha;
+
+        } catch (RuntimeException ex) {
+            JOptionPane.showMessageDialog(null, ex.getMessage());
+        }
+    }
+
+    public void refrescar() {
+
+        if (ultimaFechaRecursos != null && ultimaCategoria != null) {
+            recursosView.seleccionarCategoria(ultimaCategoria);
+            cargarCalendarioRecursos(ultimaFechaRecursos, ultimaCategoria);
         }
 
-        model.setColumnasActividades(columnas);
-        model.setFilasActividades(filas);
+        if (ultimaFechaActividades != null) {
+            cargarCalendarioActividades(ultimaFechaActividades);
+        }
     }
 
     private Reserva buscarReservaRecurso(List<Reserva> reservas, Recurso recurso,

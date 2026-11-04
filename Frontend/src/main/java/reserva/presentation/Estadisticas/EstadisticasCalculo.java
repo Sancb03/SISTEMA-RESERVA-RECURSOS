@@ -71,6 +71,15 @@ public class EstadisticasCalculo {
         return filas;
     }
 
+    public static boolean sinDatos(List<Object[]> filas) {
+        for (Object[] fila : filas) {
+            if (((Integer) fila[1]) > 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     private static boolean cuenta(Reserva reserva, LocalDate inicio, LocalDate fin) {
         return reserva.getFecha() != null
                 && Reserva.ACTIVA.equals(reserva.getEstado())

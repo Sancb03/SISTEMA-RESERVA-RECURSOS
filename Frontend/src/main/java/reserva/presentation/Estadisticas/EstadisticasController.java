@@ -57,27 +57,86 @@ public class EstadisticasController {
             LocalDate inicio,
             LocalDate fin) {
 
+        cargarRecursos(inicio, fin, true);
+    }
+
+    private void cargarRecursos(LocalDate inicio, LocalDate fin, boolean avisarSinDatos) {
+
+        if (!rangoValido(inicio, fin)) {
+            return;
+        }
+
+        rangoRecInicio = inicio;
+        rangoRecFin = fin;
+
+        try {
+            cargarCategoriasRecursos(inicio, fin);
+        } catch (RuntimeException ex) {
+            JOptionPane.showMessageDialog(
+                    null,
+                    ex.getMessage(),
+                    "Estadísticas",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
+
+        if (EstadisticasCalculo.sinDatos(model.getRecursos())) {
+            graficoRecursos = null;
+            vaciarPanel(view.getGraficoRecPanel());
+
+            if (avisarSinDatos) {
+                JOptionPane.showMessageDialog(
+                        null,
+                        "No hay reservas activas entre " + formatear(inicio) + " y " + formatear(fin) + ".",
+                        "Sin datos",
+                        JOptionPane.INFORMATION_MESSAGE
+                );
+            }
+            return;
+        }
+
+        generarGraficoRecursos();
+    }
+
+    /** Fechas vacías o fin antes del inicio: avisa y no se calcula nada. */
+    private boolean rangoValido(LocalDate inicio, LocalDate fin) {
+
         if (inicio == null || fin == null) {
             JOptionPane.showMessageDialog(
                     null,
-                    "Seleccione las fechas"
+                    "Seleccione la fecha de inicio y la fecha de fin."
             );
-            return;
+            return false;
         }
 
         if (inicio.isAfter(fin)) {
             JOptionPane.showMessageDialog(
                     null,
-                    "La fecha de inicio no puede ser despues a la del fin"
+                    "La fecha de inicio no puede ser posterior a la fecha de fin."
             );
-            return;
+            return false;
         }
 
-        cargarCategoriasRecursos(inicio, fin);
-        rangoRecInicio = inicio;
-        rangoRecFin = fin;
+        return true;
+    }
 
-        generarGraficoRecursos();
+    private void vaciarPanel(JPanel panel) {
+        panel.removeAll();
+        panel.revalidate();
+        panel.repaint();
+    }
+
+    /** Vuelve a calcular con el último rango usado: al regresar a la pestaña las reservas pudieron cambiar. */
+    public void refrescar() {
+
+        if (rangoRecInicio != null) {
+            cargarRecursos(rangoRecInicio, rangoRecFin, false);
+        }
+
+        if (rangoActInicio != null) {
+            cargarActividades(rangoActInicio, rangoActFin, false);
+        }
     }
 
     private void cargarCategoriasRecursos(LocalDate inicio, LocalDate fin) {
@@ -91,25 +150,44 @@ public class EstadisticasController {
             LocalDate inicio,
             LocalDate fin) {
 
-        if (inicio == null || fin == null) {
-            JOptionPane.showMessageDialog(
-                    null,
-                    "Seleccione las fechas"
-            );
+        cargarActividades(inicio, fin, true);
+    }
+
+    private void cargarActividades(LocalDate inicio, LocalDate fin, boolean avisarSinDatos) {
+
+        if (!rangoValido(inicio, fin)) {
             return;
         }
 
-        if (inicio.isAfter(fin)) {
-            JOptionPane.showMessageDialog(
-                    null,
-                    "La fecha de inicio no puede ser despues a la del fin"
-            );
-            return;
-        }
-
-        cargarSemanas(inicio, fin);
         rangoActInicio = inicio;
         rangoActFin = fin;
+
+        try {
+            cargarSemanas(inicio, fin);
+        } catch (RuntimeException ex) {
+            JOptionPane.showMessageDialog(
+                    null,
+                    ex.getMessage(),
+                    "Estadísticas",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
+
+        if (EstadisticasCalculo.sinDatos(model.getActividades())) {
+            graficoActividades = null;
+            vaciarPanel(view.getGraficoActPanel());
+
+            if (avisarSinDatos) {
+                JOptionPane.showMessageDialog(
+                        null,
+                        "No hay reservas activas entre " + formatear(inicio) + " y " + formatear(fin) + ".",
+                        "Sin datos",
+                        JOptionPane.INFORMATION_MESSAGE
+                );
+            }
+            return;
+        }
 
         generarGraficoActividades();
     }
@@ -235,7 +313,7 @@ public class EstadisticasController {
         if (graficoRecursos == null || rangoRecInicio == null) {
             JOptionPane.showMessageDialog(
                     null,
-                    "Primero cargue las estadisticas de recursos"
+                    "No hay estadísticas para exportar. Cargue primero un rango que tenga reservas."
             );
             return;
         }
@@ -253,7 +331,7 @@ public class EstadisticasController {
         if (graficoActividades == null || rangoActInicio == null) {
             JOptionPane.showMessageDialog(
                     null,
-                    "Primero cargue las estadisticas de actividades"
+                    "No hay estadísticas para exportar. Cargue primero un rango que tenga reservas."
             );
             return;
         }

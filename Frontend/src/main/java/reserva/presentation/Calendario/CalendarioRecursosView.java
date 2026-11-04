@@ -115,4 +115,21 @@ public class CalendarioRecursosView implements PropertyChangeListener {
             Descripcion_cBox.addItem(categoria);
         }
     }
+
+    /** Vuelve a marcar en el combo la categoría que se estaba viendo (recargar la lista la reinicia). */
+    public void seleccionarCategoria(Categoria categoria) {
+
+        if (categoria == null) {
+            return;
+        }
+
+        for (int i = 0; i < Descripcion_cBox.getItemCount(); i++) {
+            Categoria item = Descripcion_cBox.getItemAt(i);
+
+            if (item.getId() != null && item.getId().equals(categoria.getId())) {
+                Descripcion_cBox.setSelectedIndex(i);
+                return;
+            }
+        }
+    }
 }
