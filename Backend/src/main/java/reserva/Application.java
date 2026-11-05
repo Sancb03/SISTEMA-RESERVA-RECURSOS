@@ -10,8 +10,18 @@ import reserva.logic.Server;
 public class Application {
 
     public static void main(String[] args) {
-        int puerto = args.length > 0 ? Integer.parseInt(args[0]) : Protocol.PORT;
-
+        int puerto = Protocol.PORT;
+        if (args.length > 0) {
+            try {
+                puerto = Integer.parseInt(args[0].trim());
+                if (puerto < 1 || puerto > 65535) {
+                    throw new NumberFormatException();
+                }
+            } catch (NumberFormatException ex) {
+                System.err.println("Puerto inválido: \"" + args[0] + "\". Use un número entre 1 y 65535.");
+                System.exit(1);
+            }
+        }
         try {
             Database.instance(); // si MySQL no está disponible, que falle YA y con mensaje claro
         } catch (RuntimeException ex) {

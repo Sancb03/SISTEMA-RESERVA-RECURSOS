@@ -152,6 +152,17 @@ public class FuncionariosController {
                             f.getId(),
                             usuarioActual
                     );
+            // Crear con un id que ya existe es un ERROR; solo se edita lo que se seleccionó/buscó antes.
+            Funcionario enEdicion = model.getCurrent();
+            boolean esEdicion = enEdicion != null && enEdicion.getId() == f.getId();
+
+            if (existente != null && !esEdicion) {
+                JOptionPane.showMessageDialog(
+                        view.getPanel1(),
+                        "Ya existe un funcionario con ese id. Elija otro, o selecciónelo en la tabla para editarlo."
+                );
+                return;
+            }
 
             boolean ok;
 
@@ -273,6 +284,15 @@ public class FuncionariosController {
                     ex.getMessage()
             );
         }
+    }
+
+    public void seleccionarFuncionario(int fila) {
+        if (fila < 0) {
+            return;
+        }
+        javax.swing.JTable tabla = view.getListadotable();
+        TablaModel tablaModel = (TablaModel) tabla.getModel();
+        model.setCurrent(tablaModel.getRowAt(tabla.convertRowIndexToModel(fila)));
     }
 
     public void limpiar() {

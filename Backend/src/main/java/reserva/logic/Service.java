@@ -60,6 +60,21 @@ public class Service implements IService {
         }
     }
 
+    /** El Frontend nunca debe recibir claves: se borran antes de responder. */
+    private <T extends Usuario> T sinClave(T usuario) {
+        if (usuario != null) {
+            usuario.setClave(null);
+        }
+        return usuario;
+    }
+
+    private <T extends Usuario> List<T> sinClaves(List<T> lista) {
+        for (T usuario : lista) {
+            usuario.setClave(null);
+        }
+        return lista;
+    }
+
     // ===================== USUARIOS (usado por Login) =====================
 
     @Override
@@ -194,7 +209,7 @@ public class Service implements IService {
     public synchronized Funcionario buscarFuncionarioPorId(int id, Usuario usuarioActual) {
         validarAdmin(usuarioActual);
         Usuario u = usuarioDao.read(id);
-        return (u instanceof Funcionario) ? (Funcionario) u : null;
+        return (u instanceof Funcionario) ? sinClave((Funcionario) u) : null;
     }
 
     @Override
@@ -203,13 +218,13 @@ public class Service implements IService {
         if (nombre == null || nombre.isBlank()) {
             return new ArrayList<>();
         }
-        return usuarioDao.findFuncionariosByNombre(nombre);
+        return sinClaves(usuarioDao.findFuncionariosByNombre(nombre));
     }
 
     @Override
     public synchronized List<Funcionario> listarFuncionarios(Usuario usuarioActual) {
         validarAdmin(usuarioActual);
-        return usuarioDao.findFuncionarios();
+        return sinClaves(usuarioDao.findFuncionarios());
     }
 
     // ===================== CATEGORIAS =====================

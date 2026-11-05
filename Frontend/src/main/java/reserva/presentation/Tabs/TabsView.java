@@ -48,7 +48,8 @@ public class TabsView extends JFrame {
         raiz.add(alertasView.getPanel(), BorderLayout.EAST);
         setContentPane(raiz);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(1100, 700);
+        setMinimumSize(new Dimension(1100, 700));
+        setSize(1600, 760);
         setLocationRelativeTo(null);
 
         if (Iconos.get("icon") != null) {

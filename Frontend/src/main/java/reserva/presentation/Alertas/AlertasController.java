@@ -39,6 +39,15 @@ public class AlertasController implements SocketListener {
         model.agregar(reserva);
     }
 
+    /** Se cayó el Backend: se avisa una sola vez en vez de dejar el panel de alertas muerto en silencio. */
+    @Override
+    public void conexionPerdida() {
+        javax.swing.JOptionPane.showMessageDialog(null,
+                "Se perdió la conexión con el servidor, por lo que ya no llegarán alertas.\n"
+                        + "Cierre la aplicación y vuelva a ingresar cuando el Backend esté disponible.",
+                "Alertas", javax.swing.JOptionPane.WARNING_MESSAGE);
+    }
+
     public void descartar(Reserva reserva) {
         model.descartar(reserva);
     }

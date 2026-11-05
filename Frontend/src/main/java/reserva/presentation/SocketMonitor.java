@@ -79,7 +79,15 @@ public class SocketMonitor {
                         break;
                 }
             } catch (IOException ex) {
+                boolean fueInesperado = condition; // si stop() lo apagó a propósito, condition ya era false
                 condition = false;
+                if (fueInesperado) {
+                    SwingUtilities.invokeLater(new Runnable() {
+                        public void run() {
+                            listener.conexionPerdida();
+                        }
+                    });
+                }
             }
         }
         try {

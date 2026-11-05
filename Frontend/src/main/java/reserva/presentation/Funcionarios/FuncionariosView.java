@@ -72,6 +72,14 @@ public class FuncionariosView implements PropertyChangeListener {
         imprimirButton.addActionListener(e ->
                 controller.generarPDF()
         );
+        Listadotable.getSelectionModel()
+                .addListSelectionListener(e -> {
+                    if (!e.getValueIsAdjusting()) {
+                        controller.seleccionarFuncionario(
+                                Listadotable.getSelectedRow()
+                        );
+                    }
+                });
     }
 
     public Funcionario take() {
@@ -123,7 +131,7 @@ public class FuncionariosView implements PropertyChangeListener {
                 if (actual != null) {
 
                     idFun_tField.setText(
-                            String.valueOf(actual.getId())
+                            actual.getId() > 0 ? String.valueOf(actual.getId()) : ""
                     );
 
                     NombreFun_tField.setText(
